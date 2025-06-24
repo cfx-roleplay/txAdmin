@@ -65,6 +65,7 @@ export default () => {
     router.post('/settings/banTemplates', apiAuthMw, routes.settings_saveBanTemplates);
     router.post('/settings/resetServerDataPath', apiAuthMw, routes.settings_resetServerDataPath);
     router.get('/settings/getPoolLimits', apiAuthMw, routes.settings_getPoolLimits);
+    router.get('/settings/getGameBuilds', apiAuthMw, routes.settings_getGameBuilds);
 
     //Master Actions
     router.get('/masterActions/backupDatabase', webAuthMw, routes.masterActions_getBackup);

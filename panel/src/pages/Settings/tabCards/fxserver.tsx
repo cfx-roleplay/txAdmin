@@ -20,7 +20,8 @@ import type { ResetServerDataPathResp } from "@shared/otherTypes"
 import { useOpenConfirmDialog } from "@/hooks/dialogs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { usePoolLimits } from "@/hooks/usePoolLimits"
+import { usePoolLimits } from "@/hooks/usePoolLimits";
+import { useGameBuilds } from "@/hooks/useGameBuilds"
 
 
 // Remove duplicates and sort times
@@ -445,6 +446,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
     const { hasPerm } = useAdminPerms();
     const setLocation = useLocation()[1];
     const openConfirmDialog = useOpenConfirmDialog();
+    const { gameBuilds, isLoading: isLoadingGameBuilds } = useGameBuilds();
     const [states, dispatch] = useReducer(
         configsReducer<typeof pageConfigs>,
         null,
@@ -743,19 +745,59 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
             </SettingItem>
 
             <SettingItem label="Enforce Game Build" htmlFor={cfg.enforceGameBuild.eid} showIf={showAdvanced}>
-                <Input
-                    id={cfg.enforceGameBuild.eid}
-                    ref={enforceGameBuildRef}
-                    defaultValue={cfg.enforceGameBuild.initialValue || ''}
-                    placeholder="2545, h4, mptuner, etc."
-                    onInput={updatePageState}
-                    disabled={pageCtx.isReadOnly}
-                />
+                {isLoadingGameBuilds ? (
+                    <Input
+                        id={cfg.enforceGameBuild.eid}
+                        value="Loading game builds..."
+                        disabled={true}
+                    />
+                ) : gameBuilds && gameBuilds.availableFiveMBuilds.length > 0 ? (
+                    <Select
+                        value={states.enforceGameBuild || 'disabled'}
+                        onValueChange={(val) => cfg.enforceGameBuild.state.set(val === 'disabled' ? null : val)}
+                        disabled={pageCtx.isReadOnly}
+                    >
+                        <SelectTrigger id={cfg.enforceGameBuild.eid}>
+                            <SelectValue placeholder="Select game build or leave disabled" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="disabled">Disabled (Latest Stable)</SelectItem>
+                            {gameBuilds.fivem.filter(build => build.dlcName).slice(-10).reverse().map((build) => (
+                                <SelectItem key={build.build} value={build.build}>
+                                    <div className="flex justify-between items-center w-full">
+                                        <span>FiveM {build.build}</span>
+                                        <span className="text-xs text-muted-foreground ml-2">
+                                            {build.dlcName}
+                                        </span>
+                                    </div>
+                                </SelectItem>
+                            ))}
+                            <SelectItem value="latest-fivem">Latest FiveM ({gameBuilds.fivem[gameBuilds.fivem.length - 1]?.build})</SelectItem>
+                        </SelectContent>
+                    </Select>
+                ) : (
+                    <Input
+                        id={cfg.enforceGameBuild.eid}
+                        ref={enforceGameBuildRef}
+                        defaultValue={cfg.enforceGameBuild.initialValue || ''}
+                        placeholder="2545, 3570, 1491, etc."
+                        onInput={updatePageState}
+                        disabled={pageCtx.isReadOnly}
+                    />
+                )}
                 <SettingItemDesc>
                     Selects a game build for clients to use. This can only be specified at startup, and cannot be changed at runtime. <br />
-                    Examples: <InlineCode>h4</InlineCode>, <InlineCode>mptuner</InlineCode>, <InlineCode>2545</InlineCode>. <br />
-                    <strong>FiveM builds:</strong> 1, 1604 (xm18), 2060 (sum), 2189 (h4), 2372 (tuner), 2545 (security), 2612 (mpg9ec), 2699 (mpsum2), 2802 (mpchristmas3), 2944 (mp2023_01), 3095 (mp2023_02), 3258 (mp2024_01), 3407 (mp2024_02), 3570 (mp2025_01). <br />
-                    <strong>RedM builds:</strong> 1311, 1355, 1436, 1491.
+                    {gameBuilds ? (
+                        <>
+                            <strong>Latest FiveM:</strong> {gameBuilds.fivem[gameBuilds.fivem.length - 1]?.build} ({gameBuilds.fivem.find(b => b.build === gameBuilds.fivem[gameBuilds.fivem.length - 1]?.build)?.dlcName || 'Latest update'}). <br />
+                            Game builds are fetched dynamically from the <TxAnchor href={`https://raw.githubusercontent.com/citizenfx/fivem/refs/heads/master/ext/cfx-ui/src/cfx/base/game.ts`}>CitizenFX repository</TxAnchor>.
+                        </>
+                    ) : (
+                        <>
+                            Examples: <InlineCode>2545</InlineCode>, <InlineCode>3570</InlineCode>. <br />
+                            <strong>FiveM builds:</strong> 1-3570 (numerical).
+                        </>
+                    )}
                 </SettingItemDesc>
             </SettingItem>
             <SettingItem label="Replace Exe To Switch Builds" showIf={showAdvanced}>

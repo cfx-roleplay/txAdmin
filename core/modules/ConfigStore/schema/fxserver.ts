@@ -2,22 +2,16 @@ import { z } from "zod";
 import { typeDefinedConfig, typeNullableConfig } from "./utils";
 import { SYM_FIXER_DEFAULT } from "@lib/symbols";
 import { isValidPoolName, getPoolMaxLimit } from "@core/lib/poolSizeLimits";
-
-// TODO: find a automatic way to get all builds
-const fivemBuilds = [
-    '1', '1604', '2060', '2189', '2372', '2545', '2612', '2699', '2802', '2944', '3095', '3258', '3407', '3570',
-    'xm18', 'christmas2018', 'mpchristmas2018', 'sum', 'mpsum', 'h4', 'heist4', 'mpheist4', 
-    'tuner', 'mptuner', 'security', 'mpsecurity', 'mpg9ec', 'mpsum2', 'mpchristmas3', 
-    'mp2023_01', 'mp2023_02', 'mp2024_01', 'mp2024_02', 'mp2025_01'
-] as const;
-
-// We don't really care for RedM
-const redmBuilds = ['1311', '1355', '1436', '1491'] as const;
+import { isValidFiveMBuild } from "@core/lib/gameBuilds";
 
 const enforceGameBuild = typeNullableConfig({
     name: 'Enforce Game Build',
     default: null,
-    validator: z.string().nullable(),
+    validator: z.string().min(1).refine(async (build) => {
+        return await isValidFiveMBuild(build);
+    }, {
+        message: "Invalid game build. Build must exist in FiveM supported builds.",
+    }).nullable(),
     fixer: SYM_FIXER_DEFAULT,
 });
 
@@ -234,4 +228,4 @@ export default {
     useAccurateSends,
 } as const;
 
-export { fivemBuilds, redmBuilds }; 
+// Game builds are now fetched dynamically from CFX.re repository 

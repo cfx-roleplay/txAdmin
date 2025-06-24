@@ -36,6 +36,7 @@ export { default as settings_getBanTemplates } from './banTemplates/getBanTempla
 export { default as settings_saveBanTemplates } from './banTemplates/saveBanTemplates';
 export { default as settings_resetServerDataPath } from './settings/resetServerDataPath';
 export { default as settings_getPoolLimits } from './settings/getPoolLimits';
+export { default as settings_getGameBuilds } from './settings/getGameBuilds';
 
 export { default as masterActions_page } from './masterActions/page';
 export { default as masterActions_getBackup } from './masterActions/getBackup';

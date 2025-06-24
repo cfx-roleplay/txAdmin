@@ -451,6 +451,18 @@
                 "description": "Utilise la nouvelle API pour améliorer les événements de jeu GTA."
             }
         },
+        "blocked_net_game_events": {
+            "label": "Événements de jeu réseau bloqués",
+            "description": "Bloque des événements de jeu réseau spécifiques pour prévenir les exploits et actions non autorisées.",
+            "warning": "⚠️ Attention : Bloquer des événements peut casser des fonctionnalités légitimes du jeu. Ne bloquez que les événements que vous comprenez.",
+            "dialog_title": "Bloquer un événement de jeu réseau",
+            "select_event": "Sélectionner un événement à bloquer",
+            "block_button": "Bloquer l'événement",
+            "add_button": "Ajouter un événement",
+            "clear_button": "Effacer tout",
+            "no_events": "Aucun événement bloqué. Cliquez sur le bouton + pour ajouter des événements.",
+            "preset": "Sécurité de base (blocages essentiels)"
+        },
         "integrations": {
             "steam_web_api_key": {
                 "label": "Clé API Web Steam",

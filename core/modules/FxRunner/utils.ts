@@ -129,6 +129,10 @@ export const getMutableConvars = (isCmdLine = false) => {
         convars.push(['set', 'sv_useAccurateSends', txConfig.fxserver.useAccurateSends]);
     }
 
+    for (const eventHash of txConfig.fxserver.blockedNetGameEvents) {
+        convars.push(['set', 'block_net_game_event', eventHash]);
+    }
+
     return convars.map((c) => polishConvarSetTuple(c, isCmdLine));
 };
 

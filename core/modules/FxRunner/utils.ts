@@ -44,6 +44,91 @@ export const getMutableConvars = (isCmdLine = false) => {
         // //NOTE: no auto update, maybe we shouldn't tie core and server verbosity anyways
         // ['setr', 'verbose', console.isVerbose],
     ];
+    
+    if (txConfig.fxserver.enforceGameBuild !== null) {
+        convars.push(['set', 'sv_enforceGameBuild', txConfig.fxserver.enforceGameBuild]);
+    }
+    if (txConfig.fxserver.replaceExeToSwitchBuilds !== null) {
+        convars.push(['set', 'sv_replaceExeToSwitchBuilds', txConfig.fxserver.replaceExeToSwitchBuilds]);
+    }
+    if (txConfig.fxserver.pureLevel !== null) {
+        convars.push(['set', 'sv_pureLevel', txConfig.fxserver.pureLevel]);
+    }
+    if (txConfig.fxserver.enableNetworkedSounds !== null) {
+        convars.push(['set', 'sv_enableNetworkedSounds', txConfig.fxserver.enableNetworkedSounds]);
+    }
+    if (txConfig.fxserver.enableNetworkedPhoneExplosions !== null) {
+        convars.push(['set', 'sv_enableNetworkedPhoneExplosions', txConfig.fxserver.enableNetworkedPhoneExplosions]);
+    }
+    if (txConfig.fxserver.enableNetworkedScriptEntityStates !== null) {
+        convars.push(['set', 'sv_enableNetworkedScriptEntityStates', txConfig.fxserver.enableNetworkedScriptEntityStates]);
+    }
+    if (txConfig.fxserver.experimentalStateBagsHandler !== null) {
+        convars.push(['set', 'sv_experimentalStateBagsHandler', txConfig.fxserver.experimentalStateBagsHandler]);
+    }
+    if (txConfig.fxserver.experimentalOnesyncPopulation !== null) {
+        convars.push(['set', 'sv_experimentalOnesyncPopulation', txConfig.fxserver.experimentalOnesyncPopulation]);
+    }
+    if (txConfig.fxserver.experimentalNetGameEventHandler !== null) {
+        convars.push(['set', 'sv_experimentalNetGameEventHandler', txConfig.fxserver.experimentalNetGameEventHandler]);
+    }
+
+    for (const poolConfig of txConfig.fxserver.poolSizes) {
+        convars.push(['set', 'increase_pool_size', `"${poolConfig.poolName}" ${poolConfig.increase}`]);
+    }
+
+    if (txConfig.fxserver.endpointPrivacy !== null) {
+        convars.push(['set', 'sv_endpointPrivacy', txConfig.fxserver.endpointPrivacy]);
+    }
+    if (txConfig.fxserver.httpFileServerProxyOnly !== null) {
+        convars.push(['set', 'sv_httpFileServerProxyOnly', txConfig.fxserver.httpFileServerProxyOnly]);
+    }
+    if (txConfig.fxserver.stateBagStrictMode !== null) {
+        convars.push(['set', 'sv_stateBagStrictMode', txConfig.fxserver.stateBagStrictMode]);
+    }
+    if (txConfig.fxserver.protectServerEntities !== null) {
+        convars.push(['set', 'sv_protectServerEntities', txConfig.fxserver.protectServerEntities]);
+    }
+
+    if (txConfig.fxserver.steamWebApiKey !== null) {
+        convars.push(['set', 'steam_webApiKey', txConfig.fxserver.steamWebApiKey]);
+    }
+    if (txConfig.fxserver.steamWebApiDomain !== null) {
+        convars.push(['set', 'steam_webApiDomain', txConfig.fxserver.steamWebApiDomain]);
+    }
+
+    if (txConfig.fxserver.tebexSecret !== null) {
+        convars.push(['set', 'sv_tebexSecret', txConfig.fxserver.tebexSecret]);
+    }
+
+    if (txConfig.fxserver.playersToken !== null) {
+        convars.push(['set', 'sv_playersToken', txConfig.fxserver.playersToken]);
+    }
+    if (txConfig.fxserver.profileDataToken !== null) {
+        convars.push(['set', 'sv_profileDataToken', txConfig.fxserver.profileDataToken]);
+    }
+
+    if (txConfig.fxserver.listingIpOverride !== null) {
+        convars.push(['set', 'sv_listingIpOverride', txConfig.fxserver.listingIpOverride]);
+    }
+    if (txConfig.fxserver.listingHostOverride !== null) {
+        convars.push(['set', 'sv_listingHostOverride', txConfig.fxserver.listingHostOverride]);
+    }
+
+    if (txConfig.fxserver.endpoints !== null) {
+        convars.push(['set', 'sv_endpoints', txConfig.fxserver.endpoints]);
+    }
+    if (txConfig.fxserver.onesyncLogFile !== null) {
+        convars.push(['set', 'onesync_logFile', txConfig.fxserver.onesyncLogFile]);
+    }
+
+    if (txConfig.fxserver.onesyncAutomaticResend !== null) {
+        convars.push(['set', 'onesync_automaticResend', txConfig.fxserver.onesyncAutomaticResend]);
+    }
+    if (txConfig.fxserver.useAccurateSends !== null) {
+        convars.push(['set', 'sv_useAccurateSends', txConfig.fxserver.useAccurateSends]);
+    }
+
     return convars.map((c) => polishConvarSetTuple(c, isCmdLine));
 };
 
@@ -63,6 +148,7 @@ export const mutableConvarConfigDependencies = [
     'gameFeatures.*',
     'banlist.enabled',
     'whitelist.mode',
+    'fxserver.*',
 ];
 
 

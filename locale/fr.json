@@ -363,5 +363,149 @@
                 "all_hwids": "All Hardware IDs"
             }
         }
+    },
+    "fxserver_settings": {
+        "enforce_game_build": {
+            "label": "Version de jeu imposée",
+            "description": "Sélectionne une version de jeu pour les clients. Ne peut être spécifié qu'au démarrage."
+        },
+        "replace_exe_to_switch_builds": {
+            "label": "Remplacer l'exécutable pour changer de version",
+            "description": "Détermine comment le client exécutera les anciennes versions de jeu."
+        },
+        "pure_level": {
+            "label": "Niveau de pureté",
+            "description": "Empêche les utilisateurs d'utiliser des fichiers client modifiés.",
+            "level_1": "Niveau 1 - Bloquer les fichiers modifiés (sauf audio et graphiques)",
+            "level_2": "Niveau 2 - Bloquer tous les fichiers modifiés"
+        },
+        "pool_sizes": {
+            "label": "Tailles des pools",
+            "description": "Définit la taille de pools de jeu spécifiques. Les valeurs représentent la taille totale du pool et ne peuvent pas dépasser les limites maximales de CFX.re.",
+            "dialog_title": "Ajouter une taille de pool",
+            "pool_name": "Nom du pool",
+            "increase_amount": "Taille du pool",
+            "add_button": "Ajouter le pool",
+            "errors": {
+                "invalid_increase": {
+                    "title": "Valeur de pool invalide",
+                    "message": "La valeur du pool doit être un nombre positif supérieur à 0."
+                },
+                "invalid_pool": {
+                    "title": "Nom de pool invalide",
+                    "message": "\"{{poolName}}\" n'est pas un nom de pool FiveM valide. Veuillez sélectionner parmi les options disponibles."
+                },
+                "duplicate_pool": {
+                    "title": "Pool dupliqué",
+                    "message": "Le pool \"{{poolName}}\" est déjà configuré. Veuillez choisir un pool différent."
+                },
+                "exceeds_limit": {
+                    "title": "Valeur dépasse la limite maximale",
+                    "message": "La valeur pour \"{{poolName}}\" est trop élevée. Maximum autorisé : {{maxLimit}}, mais vous avez demandé : {{requestedValue}}."
+                }
+            }
+        },
+        "privacy_security": {
+            "endpoint_privacy": {
+                "label": "Confidentialité des endpoints",
+                "description": "Si activé, masque les adresses IP des joueurs dans les rapports publics."
+            },
+            "http_file_server_proxy_only": {
+                "label": "Serveur de fichiers HTTP en proxy uniquement",
+                "description": "Restreint l'accès au serveur de fichiers aux plages d'IP spécifiées par sv_proxyIPRanges."
+            },
+            "state_bag_strict_mode": {
+                "label": "Mode strict des state bags",
+                "description": "Active le mode strict pour les opérations state bag."
+            },
+            "protect_server_entities": {
+                "label": "Protéger les entités du serveur",
+                "description": "Protège les entités créées par le serveur contre la suppression par les clients."
+            }
+        },
+        "networking": {
+            "enable_networked_sounds": {
+                "label": "Activer les sons en réseau",
+                "description": "Permet aux utilisateurs de router NETWORK_PLAY_SOUND_EVENT via le serveur."
+            },
+            "enable_networked_phone_explosions": {
+                "label": "Activer les explosions de téléphone en réseau",
+                "description": "Permet aux utilisateurs de router REQUEST_PHONE_EXPLOSION_EVENT via le serveur."
+            },
+            "enable_networked_script_entity_states": {
+                "label": "Activer les états d'entité script en réseau",
+                "description": "Permet aux utilisateurs de router SCRIPT_ENTITY_STATE_CHANGE_EVENT via le serveur."
+            }
+        },
+        "experimental": {
+            "state_bags_handler": {
+                "label": "Gestionnaire expérimental de state bags",
+                "description": "Utilise la nouvelle API de sérialisation pour améliorer la vitesse des state bags."
+            },
+            "onesync_population": {
+                "label": "Population OneSync expérimentale",
+                "description": "Corrige une erreur qui limitait incorrectement les ID d'entité à 8192 au lieu de 65535."
+            },
+            "net_game_event_handler": {
+                "label": "Gestionnaire expérimental d'événements de jeu réseau",
+                "description": "Utilise la nouvelle API pour améliorer les événements de jeu GTA."
+            }
+        },
+        "integrations": {
+            "steam_web_api_key": {
+                "label": "Clé API Web Steam",
+                "description": "Clé API Web Steam pour la vérification des joueurs.",
+                "security_warning": "⚠️ GARDER SÉCURISÉ"
+            },
+            "steam_web_api_domain": {
+                "label": "Domaine API Web Steam",
+                "description": "Domaine API Steam pour les requêtes. Changer pour les configurations proxy/firewall."
+            },
+            "tebex_secret": {
+                "label": "Secret Tebex",
+                "description": "Clé secrète d'intégration boutique Tebex.",
+                "security_warning": "⚠️ GARDER SÉCURISÉ"
+            }
+        },
+        "authentication": {
+            "players_token": {
+                "label": "Token des joueurs",
+                "description": "Token d'authentification pour l'accès aux endpoints des joueurs.",
+                "security_warning": "⚠️ GARDER SÉCURISÉ"
+            },
+            "profile_data_token": {
+                "label": "Token des données de profil",
+                "description": "Token d'authentification pour l'accès aux données de profil.",
+                "security_warning": "⚠️ GARDER SÉCURISÉ"
+            }
+        },
+        "listing": {
+            "ip_override": {
+                "label": "Remplacement IP de listing",
+                "description": "Remplace l'adresse IP utilisée dans le listing du serveur."
+            },
+            "host_override": {
+                "label": "Remplacement hôte de listing",
+                "description": "Remplace le nom d'hôte utilisé dans le listing du serveur."
+            }
+        },
+        "advanced": {
+            "endpoints": {
+                "label": "Endpoints",
+                "description": "Configuration d'endpoints personnalisés pour les configurations réseau avancées."
+            },
+            "onesync_log_file": {
+                "label": "Fichier de log OneSync",
+                "description": "Chemin vers le fichier de log de débogage OneSync."
+            },
+            "onesync_automatic_resend": {
+                "label": "Renvoi automatique OneSync",
+                "description": "Renvoie automatiquement les paquets OneSync échoués."
+            },
+            "use_accurate_sends": {
+                "label": "Utiliser des envois précis",
+                "description": "Utilise des méthodes d'envoi de paquets réseau plus précises."
+            }
+        }
     }
 }

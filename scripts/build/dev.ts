@@ -9,7 +9,6 @@ import {
     getPublishVersion,
 } from './utils';
 import config from './config';
-import { parseTxDevEnv } from '../../shared/txDevEnv';
 import { TxAdminRunner } from './TxAdminRunner';
 process.loadEnvFile();
 
@@ -17,7 +16,51 @@ process.loadEnvFile();
 process.stdout.write('.\n'.repeat(40) + '\x1B[2J\x1B[H');
 
 //Load the env vars, and check for the required ones
-const txDevEnv = parseTxDevEnv();
+const envConfigs = {
+    SRC_PATH: {},
+    FXSERVER_PATH: {},
+    VITE_URL: {
+        default: 'http://localhost:40122',
+    },
+    ENABLED: {
+        default: false,
+        parser: (val: string) => Boolean(val)
+    },
+    VERBOSE: {
+        default: false,
+        parser: (val: string) => Boolean(val)
+    },
+    CFXKEY: {},
+    STEAMKEY: {},
+    EXT_STATS_HOST: {},
+    LAUNCH_ARGS: {
+        parser: (val: string) => {
+            const filtered = val.split(/\s+/).filter(Boolean);
+            return filtered.length ? filtered : undefined;
+        }
+    },
+};
+
+const txDevEnv: any = {};
+for (const key of Object.keys(envConfigs)) {
+    const keyConfig = (envConfigs as any)[key];
+    const value = process.env[`TXDEV_${key}`];
+    
+    if (value === undefined) {
+        if ('default' in keyConfig && keyConfig.default !== undefined) {
+            txDevEnv[key] = keyConfig.default;
+        }
+    } else {
+        if ('parser' in keyConfig && keyConfig.parser) {
+            const parsed = keyConfig.parser(value);
+            if (parsed !== undefined) {
+                txDevEnv[key] = parsed;
+            }
+        } else {
+            txDevEnv[key] = value;
+        }
+    }
+}
 if (!txDevEnv.FXSERVER_PATH || !txDevEnv.VITE_URL) {
     console.error(`Missing 'TXDEV_FXSERVER_PATH' and/or 'TXDEV_VITE_URL' env variables.`);
     console.error('Please read the docs/development.md file for more information.');

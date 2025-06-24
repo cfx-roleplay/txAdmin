@@ -18,6 +18,9 @@ import { useAdminPerms } from "@/hooks/auth"
 import { useLocation } from "wouter"
 import type { ResetServerDataPathResp } from "@shared/otherTypes"
 import { useOpenConfirmDialog } from "@/hooks/dialogs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { usePoolLimits } from "@/hooks/usePoolLimits"
 
 
 // Remove duplicates and sort times
@@ -180,6 +183,222 @@ function TimeZoneWarning() {
     return null;
 }
 
+type PoolSizeBoxProps = {
+    poolSizes: Array<{poolName: string, increase: number}> | undefined;
+    setPoolSizes: (val: any) => void;
+    disabled?: boolean;
+};
+
+function PoolSizeBox({ poolSizes, setPoolSizes, disabled }: PoolSizeBoxProps) {
+    const [isPoolDialogOpen, setIsPoolDialogOpen] = useState(false);
+    const [poolName, setPoolName] = useState('');
+    const [increase, setIncrease] = useState('');
+    const [animationParent] = useAutoAnimate();
+    const { poolLimits, isLoading: isLoadingPools } = usePoolLimits();
+
+    const addPool = () => {
+        if (!poolName || !increase || !poolSizes || disabled) return;
+        const increaseNum = parseInt(increase);
+        
+        if (isNaN(increaseNum) || increaseNum <= 0) {
+            txToast.error({
+                title: 'Invalid Increase Value',
+                msg: 'The increase value must be a positive number greater than 0.',
+            });
+            return;
+        }
+        
+        if (poolLimits) {
+            if (!poolLimits.pools[poolName]) {
+                txToast.error({
+                    title: 'Invalid Pool Name',
+                    msg: `"${poolName}" is not a valid FiveM pool name. Please select from the available options.`,
+                });
+                return;
+            }
+        } else {
+            txToast.error({
+                title: 'Pool Data Loading',
+                msg: 'Pool validation data is still loading. Please wait and try again.',
+            });
+            return;
+        }
+        
+        if (poolSizes.some(pool => pool.poolName === poolName)) {
+            txToast.error({
+                title: 'Duplicate Pool',
+                msg: `Pool "${poolName}" is already configured. Please choose a different pool.`,
+            });
+            return;
+        }
+        
+        if (poolLimits && poolLimits.pools[poolName]) {
+            const maxAllowedLimit = poolLimits.pools[poolName];
+            
+            if (increaseNum > maxAllowedLimit) {
+                txToast.error({
+                    title: 'Value Exceeds Maximum Limit',
+                    msg: `The increase value for "${poolName}" is too high. Maximum allowed: ${maxAllowedLimit.toLocaleString()}, but you requested: ${increaseNum.toLocaleString()}.`,
+                });
+                return;
+            }
+        }
+        
+        const newPool = { poolName, increase: increaseNum };
+        setPoolSizes([...poolSizes, newPool]);
+        setPoolName('');
+        setIncrease('');
+        setIsPoolDialogOpen(false);
+    };
+
+    const removePool = (index: number) => {
+        if (!poolSizes || disabled) return;
+        setPoolSizes(poolSizes.filter((_, i) => i !== index));
+    };
+
+    const clearPools = () => {
+        if (disabled) return;
+        setPoolSizes([]);
+    };
+
+    return (
+        <div className="py-3 px-2 min-h-[4.5rem] flex items-center border rounded-lg">
+            <div className={cn("w-full flex items-center gap-2", disabled && 'cursor-not-allowed')}>
+                <div className="flex flex-wrap gap-2 grow" ref={animationParent}>
+                    {poolSizes && poolSizes.length === 0 && (
+                        <div className="text-sm text-muted-foreground">
+                            No pool size increases configured. Click the <strong>+</strong> button to add one.
+                        </div>
+                    )}
+                    {poolSizes && poolSizes.map((pool, index) => (
+                        <div key={`${pool.poolName}-${index}`} className="flex items-center space-x-1 bg-secondary text-secondary-foreground px-3 py-1 rounded-md select-none">
+                            <span className="font-mono">{pool.poolName}</span>
+                            <span className="text-xs opacity-70">+{pool.increase}</span>
+                            {!disabled && <button
+                                onClick={() => removePool(index)}
+                                className="ml-2 text-secondary-foreground/50 hover:text-destructive"
+                                aria-label="Remove"
+                            >
+                                <XIcon className="size-4" />
+                            </button>}
+                        </div>
+                    ))}
+                </div>
+                <div className="flex gap-2">
+                    <Dialog open={isPoolDialogOpen} onOpenChange={setIsPoolDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button
+                                variant="secondary"
+                                size={'xs'}
+                                className="w-10 hover:bg-primary hover:text-primary-foreground"
+                                aria-label="Add"
+                                disabled={disabled}
+                            >
+                                <PlusIcon className="h-4" />
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Add Pool Size</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                                <div>
+                                    <Label htmlFor="poolName">Pool Name</Label>
+                                    {isLoadingPools ? (
+                                        <div className="text-sm text-muted-foreground">Loading available pools...</div>
+                                    ) : poolLimits && poolLimits.availablePoolNames.length > 0 ? (
+                                        <Select value={poolName} onValueChange={setPoolName}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a pool..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {poolLimits.availablePoolNames.map((name: string) => (
+                                                    <SelectItem key={name} value={name}>
+                                                        <div className="flex justify-between items-center w-full">
+                                                            <span>{name}</span>
+                                                                                                        <span className="text-xs text-muted-foreground ml-2">
+                                                (max: {poolLimits.pools[name]})
+                                            </span>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    ) : (
+                                        <div>
+                                            <Input
+                                                id="poolName"
+                                                value={poolName}
+                                                onChange={(e) => setPoolName(e.target.value)}
+                                                placeholder="Loading pool data..."
+                                                disabled={true}
+                                            />
+                                            <div className="text-xs text-muted-foreground mt-1">
+                                                Pool validation data is loading. Please wait...
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div>
+                                    <Label htmlFor="increase">Pool Size</Label>
+                                    <Input
+                                        id="increase"
+                                        type="number"
+                                        min="1"
+                                        value={increase}
+                                        onChange={(e) => setIncrease(e.target.value)}
+                                        placeholder="6000"
+                                    />
+                                    {poolName && poolLimits && poolLimits.pools[poolName] && (
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                            Maximum allowed: {poolLimits.pools[poolName].toLocaleString()}
+                                            {increase && !isNaN(parseInt(increase)) && (
+                                                <>
+                                                    {(() => {
+                                                        const maxLimit = poolLimits.pools[poolName];
+                                                        const increaseNum = parseInt(increase);
+                                                        if (increaseNum > maxLimit) {
+                                                            return (
+                                                                <span className="text-destructive-inline">
+                                                                    {" "}⚠️ Value exceeds maximum limit!
+                                                                </span>
+                                                            );
+                                                        } else if (increaseNum > 0) {
+                                                            return (
+                                                                <span className="text-success-inline">
+                                                                    {" "}✓ Valid pool size
+                                                                </span>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    })()}
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                                <Button onClick={addPool} className="w-full" disabled={!poolName || !increase}>
+                                    Add Pool
+                                </Button>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+                    <Button
+                        onClick={clearPools}
+                        variant="muted"
+                        size={'xs'}
+                        className="w-10 hover:bg-destructive hover:text-destructive-foreground"
+                        aria-label="Clear"
+                        disabled={disabled || !poolSizes || poolSizes.length === 0}
+                    >
+                        <TrashIcon className="h-3.5" />
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 
 export const pageConfigs = {
     dataPath: getPageConfig('server', 'dataPath'),
@@ -191,6 +410,33 @@ export const pageConfigs = {
     onesync: getPageConfig('server', 'onesync', true),
     autoStart: getPageConfig('server', 'autoStart', true),
     resourceTolerance: getPageConfig('restarter', 'resourceStartingTolerance', true),
+
+    enforceGameBuild: getPageConfig('fxserver', 'enforceGameBuild', true),
+    replaceExeToSwitchBuilds: getPageConfig('fxserver', 'replaceExeToSwitchBuilds', true),
+    pureLevel: getPageConfig('fxserver', 'pureLevel', true),
+    enableNetworkedSounds: getPageConfig('fxserver', 'enableNetworkedSounds', true),
+    enableNetworkedPhoneExplosions: getPageConfig('fxserver', 'enableNetworkedPhoneExplosions', true),
+    enableNetworkedScriptEntityStates: getPageConfig('fxserver', 'enableNetworkedScriptEntityStates', true),
+    experimentalStateBagsHandler: getPageConfig('fxserver', 'experimentalStateBagsHandler', true),
+    experimentalOnesyncPopulation: getPageConfig('fxserver', 'experimentalOnesyncPopulation', true),
+    experimentalNetGameEventHandler: getPageConfig('fxserver', 'experimentalNetGameEventHandler', true),
+    
+    poolSizes: getPageConfig('fxserver', 'poolSizes', true),
+    endpointPrivacy: getPageConfig('fxserver', 'endpointPrivacy', true),
+    httpFileServerProxyOnly: getPageConfig('fxserver', 'httpFileServerProxyOnly', true),
+    stateBagStrictMode: getPageConfig('fxserver', 'stateBagStrictMode', true),
+    protectServerEntities: getPageConfig('fxserver', 'protectServerEntities', true),
+    steamWebApiKey: getPageConfig('fxserver', 'steamWebApiKey', true),
+    steamWebApiDomain: getPageConfig('fxserver', 'steamWebApiDomain', true),
+    tebexSecret: getPageConfig('fxserver', 'tebexSecret', true),
+    playersToken: getPageConfig('fxserver', 'playersToken', true),
+    profileDataToken: getPageConfig('fxserver', 'profileDataToken', true),
+    listingIpOverride: getPageConfig('fxserver', 'listingIpOverride', true),
+    listingHostOverride: getPageConfig('fxserver', 'listingHostOverride', true),
+    endpoints: getPageConfig('fxserver', 'endpoints', true),
+    onesyncLogFile: getPageConfig('fxserver', 'onesyncLogFile', true),
+    onesyncAutomaticResend: getPageConfig('fxserver', 'onesyncAutomaticResend', true),
+    useAccurateSends: getPageConfig('fxserver', 'useAccurateSends', true),
 } as const;
 
 export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardProps) {
@@ -221,6 +467,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
     const dataPathRef = useRef<HTMLInputElement | null>(null);
     const cfgPathRef = useRef<HTMLInputElement | null>(null);
     const startupArgsRef = useRef<HTMLInputElement | null>(null);
+    const enforceGameBuildRef = useRef<HTMLInputElement | null>(null);
     const forceQuietMode = pageCtx.apiData?.forceQuietMode;
 
     //Marshalling Utils
@@ -492,6 +739,371 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 <SettingItemDesc>
                     At server boot, how much time to wait for any single resource to start before restarting the server. <br />
                     <strong>Note:</strong> If you are getting <InlineCode>failed to start in time</InlineCode> errors, increase this value.
+                </SettingItemDesc>
+            </SettingItem>
+
+            <SettingItem label="Enforce Game Build" htmlFor={cfg.enforceGameBuild.eid} showIf={showAdvanced}>
+                <Input
+                    id={cfg.enforceGameBuild.eid}
+                    ref={enforceGameBuildRef}
+                    defaultValue={cfg.enforceGameBuild.initialValue || ''}
+                    placeholder="2545, h4, mptuner, etc."
+                    onInput={updatePageState}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Selects a game build for clients to use. This can only be specified at startup, and cannot be changed at runtime. <br />
+                    Examples: <InlineCode>h4</InlineCode>, <InlineCode>mptuner</InlineCode>, <InlineCode>2545</InlineCode>. <br />
+                    <strong>FiveM builds:</strong> 1, 1604 (xm18), 2060 (sum), 2189 (h4), 2372 (tuner), 2545 (security), 2612 (mpg9ec), 2699 (mpsum2), 2802 (mpchristmas3), 2944 (mp2023_01), 3095 (mp2023_02), 3258 (mp2024_01), 3407 (mp2024_02), 3570 (mp2025_01). <br />
+                    <strong>RedM builds:</strong> 1311, 1355, 1436, 1491.
+                </SettingItemDesc>
+            </SettingItem>
+            <SettingItem label="Replace Exe To Switch Builds" showIf={showAdvanced}>
+                <SwitchText
+                    id={cfg.replaceExeToSwitchBuilds.eid}
+                    checkedLabel="Enabled"
+                    uncheckedLabel="Disabled"
+                    checked={states.replaceExeToSwitchBuilds ?? undefined}
+                    onCheckedChange={cfg.replaceExeToSwitchBuilds.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Determines how the client will run older game builds. <br />
+                    <strong>True:</strong> Default for builds below 12872. Client downloads all files for the specific game build and runs old executable. <br />
+                    <strong>False:</strong> Default for builds above 12871. Client runs latest stable game build executable but only loads specific DLCs.
+                </SettingItemDesc>
+            </SettingItem>
+            <SettingItem label="Pure Level" htmlFor={cfg.pureLevel.eid} showIf={showAdvanced}>
+                <Select
+                    value={states.pureLevel?.toString() || 'disabled'}
+                    onValueChange={(val) => cfg.pureLevel.state.set(val === 'disabled' ? null : parseInt(val) as 1 | 2)}
+                    disabled={pageCtx.isReadOnly}
+                >
+                    <SelectTrigger id={cfg.pureLevel.eid}>
+                        <SelectValue placeholder="Disabled" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="disabled">Disabled</SelectItem>
+                        <SelectItem value="1">Level 1 - Block modified files (except audio & graphics)</SelectItem>
+                        <SelectItem value="2">Level 2 - Block all modified files</SelectItem>
+                    </SelectContent>
+                </Select>
+                <SettingItemDesc>
+                    Prevents users from using modified client files. <br />
+                    <strong>Level 1:</strong> Blocks all modified client files except audio files and known graphics mods. <br />
+                    <strong>Level 2:</strong> Blocks all modified client files.
+                </SettingItemDesc>
+            </SettingItem>
+            <SettingItem label="Enable Networked Sounds" showIf={showAdvanced}>
+                <SwitchText
+                    id={cfg.enableNetworkedSounds.eid}
+                    checkedLabel="Enabled"
+                    uncheckedLabel="Disabled"
+                    checked={states.enableNetworkedSounds ?? undefined}
+                    onCheckedChange={cfg.enableNetworkedSounds.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Allow users to route NETWORK_PLAY_SOUND_EVENT through the server. <br />
+                    <strong>Default:</strong> Enabled. <strong>Warning:</strong> Can be used by malicious actors.
+                </SettingItemDesc>
+            </SettingItem>
+            <SettingItem label="Enable Networked Phone Explosions" showIf={showAdvanced}>
+                <SwitchText
+                    id={cfg.enableNetworkedPhoneExplosions.eid}
+                    checkedLabel="Enabled"
+                    uncheckedLabel="Disabled"
+                    checked={states.enableNetworkedPhoneExplosions ?? undefined}
+                    onCheckedChange={cfg.enableNetworkedPhoneExplosions.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Allow users to route REQUEST_PHONE_EXPLOSION_EVENT through the server. <br />
+                    <strong>Default:</strong> Disabled. <strong>Warning:</strong> Can be used by malicious actors.
+                </SettingItemDesc>
+            </SettingItem>
+            <SettingItem label="Enable Networked Script Entity States" showIf={showAdvanced}>
+                <SwitchText
+                    id={cfg.enableNetworkedScriptEntityStates.eid}
+                    checkedLabel="Enabled"
+                    uncheckedLabel="Disabled"
+                    checked={states.enableNetworkedScriptEntityStates ?? undefined}
+                    onCheckedChange={cfg.enableNetworkedScriptEntityStates.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Allow users to route SCRIPT_ENTITY_STATE_CHANGE_EVENT through the server. <br />
+                    <strong>Default:</strong> Enabled. <strong>Warning:</strong> Can be used by malicious actors.
+                </SettingItemDesc>
+            </SettingItem>
+            <SettingItem label="Experimental State Bags Handler" showIf={showAdvanced}>
+                <SwitchText
+                    id={cfg.experimentalStateBagsHandler.eid}
+                    checkedLabel="Enabled"
+                    uncheckedLabel="Disabled"
+                    checked={states.experimentalStateBagsHandler ?? undefined}
+                    onCheckedChange={cfg.experimentalStateBagsHandler.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Uses the new serialization API to improve the speed of packing/unpacking state bag changes. <br />
+                    <strong>Default:</strong> Enabled.
+                </SettingItemDesc>
+            </SettingItem>
+            <SettingItem label="Experimental OneSync Population" showIf={showAdvanced}>
+                <SwitchText
+                    id={cfg.experimentalOnesyncPopulation.eid}
+                    checkedLabel="Enabled"
+                    uncheckedLabel="Disabled"
+                    checked={states.experimentalOnesyncPopulation ?? undefined}
+                    onCheckedChange={cfg.experimentalOnesyncPopulation.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Fixes an oversight that incorrectly limited entity IDs to 8192 instead of 65535 when OneSync is on but population is false. <br />
+                    <strong>Default:</strong> Enabled. <strong>Note:</strong> Also enables Experimental State Bags Handler.
+                </SettingItemDesc>
+            </SettingItem>
+            <SettingItem label="Experimental Net Game Event Handler" showIf={showAdvanced}>
+                <SwitchText
+                    id={cfg.experimentalNetGameEventHandler.eid}
+                    checkedLabel="Enabled"
+                    uncheckedLabel="Disabled"
+                    checked={states.experimentalNetGameEventHandler ?? undefined}
+                    onCheckedChange={cfg.experimentalNetGameEventHandler.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Uses the new serialization API to improve GTA game events, adds entity relevance checks, and improves backwards compatibility. <br />
+                    <strong>Default:</strong> Disabled. <strong>Note:</strong> Also enables Experimental State Bags Handler and OneSync Population.
+                </SettingItemDesc>
+            </SettingItem>
+
+            <SettingItem label="Pool Sizes" showIf={showAdvanced}>
+                <PoolSizeBox
+                    poolSizes={states.poolSizes}
+                    setPoolSizes={cfg.poolSizes.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Set the size of specific game pools. Examples: <InlineCode>TxdStore 50000</InlineCode>, <InlineCode>CMoveObject 600</InlineCode>. <br />
+                    <strong>Common pools:</strong> TxdStore (50000 max), AnimStore (20480 max), CMoveObject (600 max), FragmentStore (14000 max). <br />
+                    Values represent the total pool size and cannot exceed CFX.re maximum limits. This can only be specified at startup and cannot be changed at runtime.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="Endpoint Privacy" showIf={showAdvanced}>
+                <SwitchText
+                    id={cfg.endpointPrivacy.eid}
+                    checkedLabel="Enabled"
+                    uncheckedLabel="Disabled"
+                    checked={states.endpointPrivacy ?? undefined}
+                    onCheckedChange={cfg.endpointPrivacy.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    If enabled, hides player IP addresses from public reports output by the server.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="HTTP File Server Proxy Only" showIf={showAdvanced}>
+                <SwitchText
+                    id={cfg.httpFileServerProxyOnly.eid}
+                    checkedLabel="Enabled"
+                    uncheckedLabel="Disabled"
+                    checked={states.httpFileServerProxyOnly ?? undefined}
+                    onCheckedChange={cfg.httpFileServerProxyOnly.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Restricts file server access to only IP addresses within ranges specified by sv_proxyIPRanges. <br />
+                    <strong>Default:</strong> Disabled. Useful when using custom proxy servers with fileserver_add.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="State Bag Strict Mode" showIf={showAdvanced}>
+                <SwitchText
+                    id={cfg.stateBagStrictMode.eid}
+                    checkedLabel="Enabled"
+                    uncheckedLabel="Disabled"
+                    checked={states.stateBagStrictMode ?? undefined}
+                    onCheckedChange={cfg.stateBagStrictMode.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Enable strict mode for state bag operations. <br />
+                    <strong>Default:</strong> Disabled.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="Protect Server Entities" showIf={showAdvanced}>
+                <SwitchText
+                    id={cfg.protectServerEntities.eid}
+                    checkedLabel="Enabled"
+                    uncheckedLabel="Disabled"
+                    checked={states.protectServerEntities ?? undefined}
+                    onCheckedChange={cfg.protectServerEntities.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Protect server-created entities from client deletion. <br />
+                    <strong>Default:</strong> Disabled.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="Steam Web API Key" htmlFor={cfg.steamWebApiKey.eid} showIf={showAdvanced}>
+                <Input
+                    id={cfg.steamWebApiKey.eid}
+                    type="password"
+                    defaultValue={cfg.steamWebApiKey.initialValue || ''}
+                    placeholder="Steam Web API key"
+                    onInput={updatePageState}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Steam Web API key for player verification. <br />
+                    <strong className="text-warning-inline">⚠️ KEEP SECURE:</strong> This key should be kept confidential.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="Steam Web API Domain" htmlFor={cfg.steamWebApiDomain.eid} showIf={showAdvanced}>
+                <Input
+                    id={cfg.steamWebApiDomain.eid}
+                    defaultValue={cfg.steamWebApiDomain.initialValue || ''}
+                    placeholder="api.steampowered.com"
+                    onInput={updatePageState}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Steam API domain for requests. Change this for proxy or firewall configurations. <br />
+                    <strong>Default:</strong> api.steampowered.com
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="Tebex Secret" htmlFor={cfg.tebexSecret.eid} showIf={showAdvanced}>
+                <Input
+                    id={cfg.tebexSecret.eid}
+                    type="password"
+                    defaultValue={cfg.tebexSecret.initialValue || ''}
+                    placeholder="Tebex store integration secret"
+                    onInput={updatePageState}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Tebex store integration secret key. <br />
+                    <strong className="text-warning-inline">⚠️ KEEP SECURE:</strong> This key should be kept confidential.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="Players Token" htmlFor={cfg.playersToken.eid} showIf={showAdvanced}>
+                <Input
+                    id={cfg.playersToken.eid}
+                    type="password"
+                    defaultValue={cfg.playersToken.initialValue || ''}
+                    placeholder="Authentication token for player endpoint"
+                    onInput={updatePageState}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Authentication token for player endpoint access. <br />
+                    <strong className="text-warning-inline">⚠️ KEEP SECURE:</strong> This token should be kept confidential.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="Profile Data Token" htmlFor={cfg.profileDataToken.eid} showIf={showAdvanced}>
+                <Input
+                    id={cfg.profileDataToken.eid}
+                    type="password"
+                    defaultValue={cfg.profileDataToken.initialValue || ''}
+                    placeholder="Authentication token for profile data"
+                    onInput={updatePageState}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Authentication token for profile data access. <br />
+                    <strong className="text-warning-inline">⚠️ KEEP SECURE:</strong> This token should be kept confidential.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="Listing IP Override" htmlFor={cfg.listingIpOverride.eid} showIf={showAdvanced}>
+                <Input
+                    id={cfg.listingIpOverride.eid}
+                    defaultValue={cfg.listingIpOverride.initialValue || ''}
+                    placeholder="192.168.1.100"
+                    onInput={updatePageState}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Override IP address used in server listing. Leave empty to use auto-detected IP.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="Listing Host Override" htmlFor={cfg.listingHostOverride.eid} showIf={showAdvanced}>
+                <Input
+                    id={cfg.listingHostOverride.eid}
+                    defaultValue={cfg.listingHostOverride.initialValue || ''}
+                    placeholder="my-server.example.com"
+                    onInput={updatePageState}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Override hostname used in server listing. Leave empty to use auto-detected hostname.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="Endpoints" htmlFor={cfg.endpoints.eid} showIf={showAdvanced}>
+                <Input
+                    id={cfg.endpoints.eid}
+                    defaultValue={cfg.endpoints.initialValue || ''}
+                    placeholder="Custom endpoint configuration"
+                    onInput={updatePageState}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Custom endpoint configuration for advanced networking setups.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="OneSync Log File" htmlFor={cfg.onesyncLogFile.eid} showIf={showAdvanced}>
+                <Input
+                    id={cfg.onesyncLogFile.eid}
+                    defaultValue={cfg.onesyncLogFile.initialValue || ''}
+                    placeholder="/path/to/onesync.log"
+                    onInput={updatePageState}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Path to OneSync debug log file. Leave empty to disable OneSync logging.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="OneSync Automatic Resend" showIf={showAdvanced}>
+                <SwitchText
+                    id={cfg.onesyncAutomaticResend.eid}
+                    checkedLabel="Enabled"
+                    uncheckedLabel="Disabled"
+                    checked={states.onesyncAutomaticResend ?? undefined}
+                    onCheckedChange={cfg.onesyncAutomaticResend.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Automatically resend failed OneSync packets. <br />
+                    <strong>Default:</strong> Disabled.
+                </SettingItemDesc>
+            </SettingItem>
+            
+            <SettingItem label="Use Accurate Sends" showIf={showAdvanced}>
+                <SwitchText
+                    id={cfg.useAccurateSends.eid}
+                    checkedLabel="Enabled"
+                    uncheckedLabel="Disabled"
+                    checked={states.useAccurateSends ?? undefined}
+                    onCheckedChange={cfg.useAccurateSends.state.set}
+                    disabled={pageCtx.isReadOnly}
+                />
+                <SettingItemDesc>
+                    Use more accurate network packet sending methods. <br />
+                    <strong>Default:</strong> Enabled.
                 </SettingItemDesc>
             </SettingItem>
         </SettingsCardShell>

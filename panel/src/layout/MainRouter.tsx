@@ -18,6 +18,7 @@ import DashboardPage from "@/pages/Dashboard/DashboardPage";
 import PlayerDropsPage from "@/pages/PlayerDropsPage/PlayerDropsPage";
 import SettingsPage from "@/pages/Settings/SettingsPage";
 import ResourcesPage from "@/pages/Resources/ResourcesPage";
+import CfgEditorPage from "@/pages/CfgEditor/CfgEditorPage";
 import { useAdminPerms } from "@/hooks/auth";
 import UnauthorizedPage from "@/pages/UnauthorizedPage";
 
@@ -113,7 +114,7 @@ const allRoutes: RouteType[] = [
         path: '/server/cfg-editor',
         title: 'CFG Editor',
         permission: 'server.cfg.editor',
-        Page: <Iframe legacyUrl="cfgEditor" />
+        Page: <CfgEditorPage />
     },
     {
         path: '/server/setup',

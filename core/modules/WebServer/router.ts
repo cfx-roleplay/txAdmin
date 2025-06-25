@@ -3,6 +3,8 @@ import Router from '@koa/router';
 import KoaRateLimit from 'koa-ratelimit';
 
 import * as routes from '@routes/index';
+import cfgEditorAPI from '@routes/cfgEditor/get';
+import cfgEditorSaveAPI from '@routes/cfgEditor/save';
 import { apiAuthMw, hostAuthMw, intercomAuthMw, webAuthMw } from './middlewares/authMws';
 
 
@@ -79,7 +81,8 @@ export default () => {
     router.get('/fxserver/resources', apiAuthMw, routes.fxserver_resources);
 
     //CFG Editor
-    router.post('/cfgEditor/save', apiAuthMw, routes.cfgEditor_save);
+    router.get('/cfgEditor', apiAuthMw, cfgEditorAPI);
+    router.post('/cfgEditor/save', apiAuthMw, cfgEditorSaveAPI);
 
     //Control routes
     router.post('/intercom/:scope', intercomAuthMw, routes.intercom);

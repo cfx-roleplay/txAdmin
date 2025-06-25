@@ -22,8 +22,8 @@ export { default as adminManager_page } from './adminManager/page.js';
 export { default as adminManager_getModal } from './adminManager/getModal';
 export { default as adminManager_actions } from './adminManager/actions';
 
-export { default as cfgEditor_page } from './cfgEditor/get';
-export { default as cfgEditor_save } from './cfgEditor/save';
+export { default as cfgEditor_page } from './cfgEditor/get.js';
+export { default as cfgEditor_save } from './cfgEditor/save.js';
 
 export { default as deployer_stepper } from './deployer/stepper';
 export { default as deployer_status } from './deployer/status';

@@ -257,7 +257,7 @@ const ModernFullPerfChart = memo(({
                                     style={{ backgroundColor: color }}
                                 />
                                 <span className="font-semibold">
-                                    Performance Bucket: {formatTickBoundary(id as string)}
+                                    Performance Bucket: {id}
                                 </span>
                             </div>
                             <div className="text-gray-600 dark:text-gray-300">

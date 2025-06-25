@@ -139,10 +139,54 @@ export const getMutableConvars = (isCmdLine = false) => {
 type RawConvarSetTuple = [setter: string, name: string, value: any];
 type ConvarSetTuple = [setter: string, name: string, value: string];
 
+// Native FiveM convars that should not have the txAdmin prefix
+const NATIVE_CONVARS = new Set([
+    // Server convars
+    'sv_enforceGameBuild',
+    'sv_replaceExeToSwitchBuilds', 
+    'sv_pureLevel',
+    'sv_enableNetworkedSounds',
+    'sv_enableNetworkedPhoneExplosions',
+    'sv_enableNetworkedScriptEntityStates',
+    'sv_experimentalStateBagsHandler',
+    'sv_experimentalOnesyncPopulation',
+    'sv_experimentalNetGameEventHandler',
+    'sv_endpointPrivacy',
+    'sv_httpFileServerProxyOnly',
+    'sv_stateBagStrictMode',
+    'sv_protectServerEntities',
+    'sv_tebexSecret',
+    'sv_playersToken',
+    'sv_profileDataToken',
+    'sv_listingIpOverride',
+    'sv_listingHostOverride',
+    'sv_endpoints',
+    'sv_useAccurateSends',
+    
+    // Steam convars
+    'steam_webApiKey',
+    'steam_webApiDomain',
+    
+    // OneSync convars
+    'onesync_logFile',
+    'onesync_automaticResend',
+    
+    // Pool size convar
+    'increase_pool_size',
+    
+    // Net game event blocking (the main fix)
+    'block_net_game_event',
+    
+    // Locale convar
+    'locale',
+]);
+
 const polishConvarSetTuple = ([setter, name, value]: RawConvarSetTuple, isCmdLine = false): ConvarSetTuple => {
+    const convarName = NATIVE_CONVARS.has(name) ? name : 'txAdmin-' + name;
+    
     return [
         isCmdLine ? `+${setter}` : setter,
-        'txAdmin-' + name,
+        convarName,
         value.toString(),
     ];
 }

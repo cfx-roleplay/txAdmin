@@ -2,6 +2,7 @@ import { GaugeIcon, Loader2Icon, MemoryStickIcon, TimerIcon, TrendingUpIcon } fr
 import { memo, useMemo } from 'react';
 import { useAtomValue } from 'jotai';
 import { dashPerfCursorAtom, dashServerStatsAtom, dashSvRuntimeAtom, useGetDashDataAge } from './dashboardHooks';
+import { useProfileTheme } from '@/hooks/useProfileTheme';
 import { cn } from '@/lib/utils';
 import { dateToLocaleDateString, dateToLocaleTimeString, isDateToday } from '@/lib/dateTime';
 
@@ -17,19 +18,22 @@ type HostStatsDataProps = {
 };
 
 const HostStatsData = memo(({ uptimePct, medianPlayerCount, fxsMemory, nodeMemory }: HostStatsDataProps) => {
+    const profileTheme = useProfileTheme();
     const uptimePart = uptimePct ? uptimePct.toFixed(2) + '%' : '--';
     const medianPlayerPart = medianPlayerCount ? Math.ceil(medianPlayerCount) : '--';
     const fxsPart = fxsMemory ? fxsMemory.toFixed(2) + 'MB' : '--';
 
-    let nodeCustomClass = null;
+    let nodeCustomStyle: React.CSSProperties = {};
     let nodePart: React.ReactNode = '--';
     if (nodeMemory) {
         const nodeMemoryUsage = Math.ceil(nodeMemory.used / nodeMemory.limit * 100);
         nodePart = nodeMemory.used.toFixed(2) + 'MB' + ' (' + nodeMemoryUsage + '%)';
         if (nodeMemoryUsage > 85) {
-            nodeCustomClass = 'text-destructive';
+            nodeCustomStyle.color = profileTheme.performanceColors.danger;
         } else if (nodeMemoryUsage > 70) {
-            nodeCustomClass = 'text-warning';
+            nodeCustomStyle.color = profileTheme.performanceColors.warning;
+        } else {
+            nodeCustomStyle.color = profileTheme.performanceColors.good;
         }
     }
 
@@ -38,31 +42,50 @@ const HostStatsData = memo(({ uptimePct, medianPlayerCount, fxsMemory, nodeMemor
             <div className="flex items-center">
                 <TimerIcon className="hidden sm:block sm:size-6 md:size-12 mr-2 opacity-75" />
                 <div className="flex flex-col mr-auto ml-auto sm:mr-0 sm:ml-auto">
-                    <span className="text-center sm:text-right text-xl text-primary">{uptimePart}</span>
+                    <span 
+                        className="text-center sm:text-right text-xl"
+                        style={{ color: profileTheme.primary }}
+                    >
+                        {uptimePart}
+                    </span>
                     <span className="text-center sm:text-right text-sm">Uptime 24h</span>
                 </div>
             </div>
             <div className="flex items-center">
                 <TrendingUpIcon className="hidden sm:block sm:size-6 md:size-12 mr-2 opacity-75" />
                 <div className="flex flex-col mr-auto ml-auto sm:mr-0 sm:ml-auto">
-                    <span className="text-center sm:text-right text-xl text-primary">{medianPlayerPart}</span>
+                    <span 
+                        className="text-center sm:text-right text-xl"
+                        style={{ color: profileTheme.secondary }}
+                    >
+                        {medianPlayerPart}
+                    </span>
                     <span className="text-center sm:text-right text-sm">Median Players 24h</span>
                 </div>
             </div>
             <div className="flex items-center">
                 <MemoryStickIcon className="hidden sm:block sm:size-6 md:size-12 mr-2 opacity-75" />
                 <div className="flex flex-col mr-auto ml-auto sm:mr-0 sm:ml-auto">
-                    <span className="text-center sm:text-right text-xl text-primary">{fxsPart}</span>
+                    <span 
+                        className="text-center sm:text-right text-xl"
+                        style={{ color: profileTheme.accent }}
+                    >
+                        {fxsPart}
+                    </span>
                     <span className="text-center sm:text-right text-sm">FXServer Memory</span>
                 </div>
             </div>
             <div
-                className={cn("flex items-center", nodeCustomClass ?? 'text-muted-foreground')}
+                className="flex items-center text-muted-foreground"
+                style={nodeCustomStyle}
                 title={nodeMemory ? `${nodeMemory.used.toFixed(2)}MB / ${nodeMemory.limit}MB` : ''}
             >
                 <MemoryStickIcon className="hidden sm:block sm:size-6 md:size-12 mr-2 opacity-75" />
                 <div className="flex flex-col mr-auto ml-auto sm:mr-0 sm:ml-auto">
-                    <span className={cn("text-center sm:text-right text-xl", nodeCustomClass ?? 'text-primary')}>
+                    <span 
+                        className="text-center sm:text-right text-xl"
+                        style={{ color: nodeCustomStyle.color || profileTheme.primary }}
+                    >
                         {nodePart}
                     </span>
                     <span className="text-center sm:text-right text-sm">Node.js Memory</span>

@@ -8,6 +8,7 @@ import useSWR from 'swr';
 import { PerfSnapType, formatTickBoundary, getBucketTicketsEstimatedTime, getServerStatsData, getTimeWeightedHistogram, processPerfLog } from './chartingUtils';
 import { dashServerStatsAtom, useThrottledSetCursor } from './dashboardHooks';
 import { useIsDarkMode } from '@/hooks/theme';
+import { useProfileTheme } from '@/hooks/useProfileTheme';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { useSetAtom } from 'jotai';
@@ -20,9 +21,10 @@ type FullPerfChartProps = {
     width: number;
     height: number;
     isDarkMode: boolean;
+    profileTheme: ReturnType<typeof useProfileTheme>;
 };
 
-const FullPerfChart = memo(({ threadName, apiData, apiDataAge, width, height, isDarkMode }: FullPerfChartProps) => {
+const FullPerfChart = memo(({ threadName, apiData, apiDataAge, width, height, isDarkMode, profileTheme }: FullPerfChartProps) => {
     const setServerStats = useSetAtom(dashServerStatsAtom);
     const svgRef = useRef<SVGSVGElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -60,7 +62,7 @@ const FullPerfChart = memo(({ threadName, apiData, apiDataAge, width, height, is
                 });
             },
         }
-    }, [apiData, apiDataAge, threadName, isDarkMode, renderError]);
+    }, [apiData, apiDataAge, threadName, isDarkMode, renderError, profileTheme]);
 
     //Update server stats when data changes
     useEffect(() => {
@@ -87,6 +89,8 @@ const FullPerfChart = memo(({ threadName, apiData, apiDataAge, width, height, is
                 size: { width, height },
                 margins,
                 isDarkMode,
+                profileTheme,
+                threadName,
                 ...processedData,
             });
             setErrorRetry(0);
@@ -97,7 +101,7 @@ const FullPerfChart = memo(({ threadName, apiData, apiDataAge, width, height, is
         } finally {
             console.groupEnd();
         }
-    }, [processedData, width, height, svgRef, canvasRef, renderError]);
+    }, [processedData, width, height, svgRef, canvasRef, renderError, profileTheme]);
 
 
     if (!width || !height) return null;
@@ -179,6 +183,7 @@ export default function FullPerfCard() {
     const [apiFailReason, setApiFailReason] = useState('');
     const [apiDataAge, setApiDataAge] = useState(0);
     const isDarkMode = useIsDarkMode();
+    const profileTheme = useProfileTheme();
 
     const chartApi = useBackendApi<PerfChartApiResp>({
         method: 'GET',
@@ -214,6 +219,7 @@ export default function FullPerfCard() {
             width={chartSize.width}
             height={chartSize.height}
             isDarkMode={isDarkMode}
+            profileTheme={profileTheme}
         />;
     } else if (swrChartApiResp.isLoading) {
         contentNode = <div className="absolute inset-0 flex flex-col items-center justify-center">

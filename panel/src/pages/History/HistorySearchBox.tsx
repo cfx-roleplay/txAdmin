@@ -16,6 +16,7 @@ import InlineCode from '@/components/InlineCode';
 import { useEventListener } from "usehooks-ts";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/auth"
+import { useProfileTheme } from '@/hooks/useProfileTheme';
 import {
     Select,
     SelectContent,
@@ -81,6 +82,7 @@ type HistorySearchBoxProps = {
 
 export function HistorySearchBox({ doSearch, initialState, adminStats }: HistorySearchBoxProps) {
     const { authData } = useAuth();
+    const profileTheme = useProfileTheme();
     const inputRef = useRef<HTMLInputElement>(null);
     const [isSearchTypeDropdownOpen, setSearchTypeDropdownOpen] = useState(false);
     const [currSearchType, setCurrSearchType] = useState<string>(initialState.search.type);
@@ -181,7 +183,17 @@ export function HistorySearchBox({ doSearch, initialState, adminStats }: History
                                 role="combobox"
                                 aria-expanded={isSearchTypeDropdownOpen}
                                 onClick={() => setSearchTypeDropdownOpen(!isSearchTypeDropdownOpen)}
-                                className="xs:w-48 justify-between border-input bg-black/5 dark:bg-black/30 hover:dark:bg-primary grow md:grow-0"
+                                className="xs:w-48 justify-between border-input grow md:grow-0"
+                                style={{
+                                    backgroundColor: profileTheme.primary + '10', // 10% opacity
+                                    borderColor: profileTheme.primary + '30', // 30% opacity
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = profileTheme.primary + '20'; // 20% opacity on hover
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = profileTheme.primary + '10'; // back to 10% opacity
+                                }}
                             >
                                 Search by {selectedSearchType.label}
                                 <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />

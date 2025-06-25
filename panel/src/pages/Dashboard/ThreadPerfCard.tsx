@@ -2,6 +2,7 @@ import { Bar, BarTooltipProps } from '@nivo/bar';
 import { BarChartHorizontalIcon, Loader2Icon } from 'lucide-react';
 import { memo, useMemo, useState } from 'react';
 import { useIsDarkMode } from '@/hooks/theme';
+import { useProfileTheme } from '@/hooks/useProfileTheme';
 import { formatTickBoundary, getBucketTicketsEstimatedTime, getMinTickIntervalMarker, getTimeWeightedHistogram } from './chartingUtils';
 import DebouncedResizeContainer from "@/components/DebouncedResizeContainer";
 import { useAtomValue } from 'jotai';
@@ -179,6 +180,7 @@ export default function ThreadPerfCard() {
     const svRuntimeData = useAtomValue(dashSvRuntimeAtom);
     const perfCursorData = useAtomValue(dashPerfCursorAtom);
     const getDashDataAge = useGetDashDataAge();
+    const profileTheme = useProfileTheme();
 
     const chartData = useMemo(() => {
         //Data availability & age check
@@ -198,19 +200,36 @@ export default function ThreadPerfCard() {
         const minTickInterval = PERF_MIN_TICK_TIME[threadName];
         const minTickIntervalMarker = getMinTickIntervalMarker(perfBoundaries, minTickInterval);
         const minTickIntervalIndex = perfBoundaries.findIndex(b => b === minTickIntervalMarker);
-        let colorFunc: (bucketNum: number) => string;
-        if (minTickIntervalIndex) {
-            colorFunc = (bucketNum) => {
-                const minTickIntervalNum = minTickIntervalIndex + 1;
-                if (bucketNum <= minTickIntervalIndex) {
-                    return d3ScaleChromatic.interpolateYlGn(1.1 - (bucketNum / minTickIntervalNum));
+        // Create performance color function using d3 interpolation for specific thread
+        const createColorFunc = () => {
+            const totalBuckets = perfBoundaries.length;
+            const threadColors = profileTheme.performanceColors[threadName as keyof typeof profileTheme.performanceColors];
+            const threadInterpolation = profileTheme.chartInterpolation[threadName as keyof typeof profileTheme.chartInterpolation];
+            
+            return (bucketNum: number) => {
+                const normalizedIndex = bucketNum / totalBuckets;
+                
+                if (minTickIntervalIndex && bucketNum <= minTickIntervalIndex) {
+                    // Good performance range - use thread-specific "good" interpolation
+                    const ratio = bucketNum / (minTickIntervalIndex + 1);
+                    const goodInterp = typeof threadInterpolation === 'string' ? 'interpolateBlues' : threadInterpolation.good;
+                    const interpolator = d3ScaleChromatic[goodInterp as keyof typeof d3ScaleChromatic] as any;
+                    return interpolator ? interpolator(ratio) : threadColors.good;
+                } else if (minTickIntervalIndex && bucketNum > minTickIntervalIndex) {
+                    // Poor performance range - use thread-specific "bad" interpolation  
+                    const poorRatio = (bucketNum - minTickIntervalIndex) / (totalBuckets - minTickIntervalIndex);
+                    const badInterp = typeof threadInterpolation === 'string' ? 'interpolateReds' : threadInterpolation.bad;
+                    const interpolator = d3ScaleChromatic[badInterp as keyof typeof d3ScaleChromatic] as any;
+                    return interpolator ? interpolator(poorRatio) : threadColors.danger;
                 } else {
-                    return d3ScaleChromatic.interpolateYlOrRd(0.25 + (bucketNum - minTickIntervalNum) / (perfBoundaries.length - minTickIntervalNum));
+                    // No min tick interval - use general interpolation
+                    const interpolator = d3ScaleChromatic[profileTheme.chartInterpolation.general as keyof typeof d3ScaleChromatic] as any;
+                    return interpolator ? interpolator(normalizedIndex) : profileTheme.chartColors[bucketNum % profileTheme.chartColors.length];
                 }
             };
-        } else {
-            colorFunc = (index) => d3ScaleChromatic.interpolateRdYlGn(1 - (index + 1) / perfBoundaries.length);
-        }
+        };
+        
+        const colorFunc = createColorFunc();
 
         const threadBucketCounts = perfBucketCounts[threadName];
         let threadHistogram: number[];
@@ -231,7 +250,7 @@ export default function ThreadPerfCard() {
             });
         }
         return { threadName, data, minTickIntervalMarker, perfBoundaries };
-    }, [svRuntimeData, perfCursorData, selectedThread]);
+    }, [svRuntimeData, perfCursorData, selectedThread, profileTheme]);
 
 
     const titleTimeIndicator = useMemo(() => {

@@ -7,6 +7,7 @@ import { convertRowDateTime } from '@/lib/dateTime';
 import { TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2Icon, GavelIcon, AlertTriangleIcon, Undo2Icon, TimerOffIcon, TimerIcon, HourglassIcon } from 'lucide-react';
 import { useBackendApi } from '@/hooks/fetch';
+import { useProfileTheme } from '@/hooks/useProfileTheme';
 import { HistoryTableActionType, HistoryTableSearchResp, HistoryTableSearchType, HistoryTableSortingType } from '@shared/historyApiTypes';
 import { useOpenActionModal } from '@/hooks/actionModal';
 import { SEARCH_ANY_STRING } from './HistorySearchBox';
@@ -21,23 +22,46 @@ type HistoryRowProps = {
 }
 
 function HistoryRow({ action, modalOpener }: HistoryRowProps) {
+    const profileTheme = useProfileTheme();
     const openModal = () => {
         modalOpener(action.id);
     }
 
-    // Type indicator
+    // Type indicator with profile-aware colors
     let rowPrefix: React.ReactNode;
     let rowId: React.ReactNode;
     if (action.type === 'warn') {
-        rowPrefix = <div className='flex items-center px-1 bg-warning-hint text-warning'>
+        rowPrefix = <div 
+            className='flex items-center px-1'
+            style={{ 
+                backgroundColor: profileTheme.performanceColors.warning + '20', // 20% opacity
+                color: profileTheme.performanceColors.warning
+            }}
+        >
             <AlertTriangleIcon className='size-5' />
         </div>
-        rowId = <span className='tracking-wider text-warning'>{action.id}</span>
+        rowId = <span 
+            className='tracking-wider'
+            style={{ color: profileTheme.performanceColors.warning }}
+        >
+            {action.id}
+        </span>
     } else if (action.type === 'ban') {
-        rowPrefix = <div className='flex items-center px-1 bg-destructive-hint text-destructive'>
+        rowPrefix = <div 
+            className='flex items-center px-1'
+            style={{ 
+                backgroundColor: profileTheme.performanceColors.danger + '20', // 20% opacity
+                color: profileTheme.performanceColors.danger
+            }}
+        >
             <GavelIcon className='size-5' />
         </div>
-        rowId = <span className='tracking-wider text-destructive'>{action.id}</span>
+        rowId = <span 
+            className='tracking-wider'
+            style={{ color: profileTheme.performanceColors.danger }}
+        >
+            {action.id}
+        </span>
     } else {
         throw new Error(`Invalid action type: ${action.type}`);
     }
@@ -152,6 +176,7 @@ type SortableTableHeaderProps = {
 }
 
 function SortableTableHeader({ label, sortKey, sortingState, setSorting, className }: SortableTableHeaderProps) {
+    const profileTheme = useProfileTheme();
     const isSorted = sortingState.key === sortKey;
     const isDesc = sortingState.desc;
     const sortIcon = isSorted ? (isDesc ? '▼' : '▲') : <></>;
@@ -162,17 +187,42 @@ function SortableTableHeader({ label, sortKey, sortingState, setSorting, classNa
             desc: isSorted ? (!isDesc) : true
         });
     }
+    
+    const hoverStyle: React.CSSProperties = {
+        backgroundColor: profileTheme.primary + '15', // 15% opacity
+    };
+    
+    const sortedStyle: React.CSSProperties = isSorted ? {
+        backgroundColor: profileTheme.primary + '25', // 25% opacity
+        fontWeight: 500
+    } : {};
+    
     return (
         <th
             onClick={onClick}
             className={cn(
-                'py-2 px-4 text-left font-light tracking-wider cursor-pointer hover:bg-zinc-300 hover:dark:bg-zinc-600',
-                isSorted && 'font-medium dark:bg-zinc-700',
+                'py-2 px-4 text-left font-light tracking-wider cursor-pointer transition-colors',
                 className,
             )}
+            style={sortedStyle}
+            onMouseEnter={(e) => {
+                if (!isSorted) {
+                    Object.assign(e.currentTarget.style, hoverStyle);
+                }
+            }}
+            onMouseLeave={(e) => {
+                if (!isSorted) {
+                    e.currentTarget.style.backgroundColor = '';
+                }
+            }}
         >
             {label}
-            <div className='ml-1 min-w-[2ch] inline-block'>{sortIcon}</div>
+            <div 
+                className='ml-1 min-w-[2ch] inline-block'
+                style={isSorted ? { color: profileTheme.primary } : {}}
+            >
+                {sortIcon}
+            </div>
         </th>
     )
 }

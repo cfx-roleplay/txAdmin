@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import * as d3ScaleChromatic from 'd3-scale-chromatic';
 import { PerfLifeSpanType, PerfSnapType } from './chartingUtils';
 import { msToShortDuration } from '@/lib/dateTime';
 import { throttle } from 'throttle-debounce';
@@ -29,6 +30,58 @@ type drawFullPerfChartProps = {
         axis: number;
     };
     isDarkMode: boolean;
+    profileTheme: {
+        performanceColors: {
+            svMain: {
+                excellent: string;
+                good: string;
+                warning: string;
+                danger: string;
+            };
+            svSync: {
+                excellent: string;
+                good: string;
+                warning: string;
+                danger: string;
+            };
+            svNetwork: {
+                excellent: string;
+                good: string;
+                warning: string;
+                danger: string;
+            };
+            server: {
+                excellent: string;
+                good: string;
+                warning: string;
+                danger: string;
+            };
+        };
+        chartColors: string[];
+        chartInterpolation: {
+            svMain: {
+                good: string;
+                bad: string;
+            };
+            svSync: {
+                good: string;
+                bad: string;
+            };
+            svNetwork: {
+                good: string;
+                bad: string;
+            };
+            server: {
+                good: string;
+                bad: string;
+            };
+            general: string;
+        };
+        primary: string;
+        secondary: string;
+        accent: string;
+    };
+    threadName: string;
     bucketLabels: string[];
     dataStart: Date;
     dataEnd: Date;
@@ -43,6 +96,8 @@ export default function drawFullPerfChart({
     size: { width, height },
     margins,
     isDarkMode,
+    profileTheme,
+    threadName,
     bucketLabels,
     dataStart,
     dataEnd,
@@ -94,8 +149,30 @@ export default function drawFullPerfChart({
         .domain(bucketLabels)
         .range([height - margins.bottom, 0]);
 
-    const histColor = d3.scaleSequential(isDarkMode ? d3.interpolateViridis : d3.interpolateCool)
-        .domain([0, 1]);
+    // Create color scale using a good interpolation for server performance
+    const createHistogramColorScale = () => {
+        // Always use a good interpolation for server performance chart regardless of thread
+        // This ensures consistent, readable colors across all threads
+        const interpolator = d3ScaleChromatic['interpolateViridis' as keyof typeof d3ScaleChromatic] as any;
+        
+        if (interpolator) {
+            return (t: number) => interpolator(t);
+        } else {
+            // Fallback to consistent colors if interpolation not available
+            const colors = [
+                "134 61% 41%", // emerald-600 (excellent)
+                "221 83% 53%", // blue-500 (good)
+                "32 95% 44%",  // orange-600 (warning)
+                "0 84% 60%"    // red-500 (danger)
+            ];
+            const scale = d3.scaleLinear<string>()
+                .domain([0, 0.33, 0.66, 1])
+                .range(colors);
+            return (t: number) => scale(t);
+        }
+    };
+    
+    const histColor = createHistogramColorScale();
 
 
     //Line Scales
@@ -157,7 +234,7 @@ export default function drawFullPerfChart({
     let snapshotsDrawn: PerfSnapType[] = [];
     const bucketYCoords = bucketLabels.map(b => Math.floor(tickBucketsScale(b)!));
     const bucketHeight = Math.ceil(tickBucketsScale.bandwidth());
-    const emptyBucketColor = d3.color(histColor(0))!.darker(1.15).formatHsl();
+    const emptyBucketColor = d3.color("134 61% 41%")?.darker(1.15)?.formatHsl() || '#1a1a1a'; // emerald-600 darkened
     // const cssBgHslVar = getComputedStyle(document.documentElement)
     //     .getPropertyValue('--background')
     //     .split(' ').join(', ');
@@ -176,7 +253,11 @@ export default function drawFullPerfChart({
         //Setup
         isFirstRender && console.time('drawing canvas heatmap');
         ctx.clearRect(0, 0, drawableAreaWidth, drawableAreaHeight);
-        ctx.fillStyle = isDarkMode ? '#281C2B' : '#E4D4FA';
+        // Use consistent background color for all threads
+        const backgroundColor = isDarkMode 
+            ? d3.color("134 61% 41%")?.darker(2)?.formatHsl() || '#281C2B'  // emerald-600 darkened
+            : d3.color("134 61% 41%")?.brighter(1.5)?.formatHsl() || '#E4D4FA'; // emerald-600 brightened
+        ctx.fillStyle = backgroundColor;
         ctx.fillRect(0, 0, drawableAreaWidth, drawableAreaHeight);
         snapshotsDrawn = [];
 

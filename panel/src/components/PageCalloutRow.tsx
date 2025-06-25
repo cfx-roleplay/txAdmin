@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useProfileTheme } from '@/hooks/useProfileTheme';
 
 const easeOutQuart = (t: number) => 1 - (--t) * t * t * t;
 const frameDuration = 1000 / 60;
@@ -47,19 +48,31 @@ export type PageCalloutRowProps = {
     callouts: PageCalloutProps[];
 };
 export default function PageCalloutRow({ callouts }: PageCalloutRowProps) {
+    const profileTheme = useProfileTheme();
     if (callouts.length !== 4) return null;
+
+    // Profile-aware colors for different callout types
+    const getCalloutColor = (index: number) => {
+        switch (index) {
+            case 0: return profileTheme.primary;
+            case 1: return profileTheme.secondary;
+            case 2: return profileTheme.accent;
+            case 3: return profileTheme.performanceColors.warning;
+            default: return profileTheme.primary;
+        }
+    };
 
     return (
         <div className="grid px-2 md:px-0 gap-2 xs:gap-4 grid-cols-2 lg:grid-cols-4 mb-4 md:mb-6">
             <div className="py-2 px-4 rounded-lg border shadow-sm">
                 <div className="flex flex-row items-center justify-between space-y-0 pb-2 text-muted-foreground">
                     <h3 className="tracking-tight text-sm font-medium line-clamp-1">{callouts[0].label}</h3>
-                    <div className='hidden xs:block'>{callouts[0].icon}</div>
+                    <div className='hidden xs:block' style={{ color: getCalloutColor(0) }}>{callouts[0].icon}</div>
                 </div>
                 {callouts[0].value === false ? (
                     <NumberLoading />
                 ) : (
-                    <div className="text-xl xs:text-2xl font-bold">
+                    <div className="text-xl xs:text-2xl font-bold" style={{ color: getCalloutColor(0) }}>
                         {callouts[0].prefix}<CountUpAnimation countTo={callouts[0].value} />
                     </div>
                 )}
@@ -67,12 +80,12 @@ export default function PageCalloutRow({ callouts }: PageCalloutRowProps) {
             <div className="py-2 px-4 rounded-lg border shadow-sm">
                 <div className="flex flex-row items-center justify-between space-y-0 pb-2 text-muted-foreground">
                     <h3 className="tracking-tight text-sm font-medium line-clamp-1">{callouts[1].label}</h3>
-                    <div className='hidden xs:block'>{callouts[1].icon}</div>
+                    <div className='hidden xs:block' style={{ color: getCalloutColor(1) }}>{callouts[1].icon}</div>
                 </div>
                 {callouts[1].value === false ? (
                     <NumberLoading />
                 ) : (
-                    <div className="text-xl xs:text-2xl font-bold">
+                    <div className="text-xl xs:text-2xl font-bold" style={{ color: getCalloutColor(1) }}>
                         {callouts[1].prefix}<CountUpAnimation countTo={callouts[1].value} />
                     </div>
                 )}
@@ -80,12 +93,12 @@ export default function PageCalloutRow({ callouts }: PageCalloutRowProps) {
             <div className="py-2 px-4 rounded-lg border shadow-sm">
                 <div className="flex flex-row items-center justify-between space-y-0 pb-2 text-muted-foreground">
                     <h3 className="tracking-tight text-sm font-medium line-clamp-1">{callouts[2].label}</h3>
-                    <div className='hidden xs:block'>{callouts[2].icon}</div>
+                    <div className='hidden xs:block' style={{ color: getCalloutColor(2) }}>{callouts[2].icon}</div>
                 </div>
                 {callouts[2].value === false ? (
                     <NumberLoading />
                 ) : (
-                    <div className="text-xl xs:text-2xl font-bold">
+                    <div className="text-xl xs:text-2xl font-bold" style={{ color: getCalloutColor(2) }}>
                         {callouts[2].prefix}<CountUpAnimation countTo={callouts[2].value} />
                     </div>
                 )}
@@ -93,12 +106,12 @@ export default function PageCalloutRow({ callouts }: PageCalloutRowProps) {
             <div className="py-2 px-4 rounded-lg border shadow-sm">
                 <div className="flex flex-row items-center justify-between space-y-0 pb-2 text-muted-foreground">
                     <h3 className="tracking-tight text-sm font-medium line-clamp-1">{callouts[3].label}</h3>
-                    <div className='hidden xs:block'>{callouts[3].icon}</div>
+                    <div className='hidden xs:block' style={{ color: getCalloutColor(3) }}>{callouts[3].icon}</div>
                 </div>
                 {callouts[3].value === false ? (
                     <NumberLoading />
                 ) : (
-                    <div className="text-xl xs:text-2xl font-bold">
+                    <div className="text-xl xs:text-2xl font-bold" style={{ color: getCalloutColor(3) }}>
                         {callouts[3].prefix}<CountUpAnimation countTo={callouts[3].value} />
                     </div>
                 )}

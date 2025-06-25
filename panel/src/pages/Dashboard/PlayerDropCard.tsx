@@ -3,6 +3,7 @@ import { Pie, DatumId, PieCustomLayerProps, ComputedDatum } from '@nivo/pie';
 import { numberToLocaleString } from '@/lib/utils';
 import { DoorOpenIcon, Loader2Icon } from 'lucide-react';
 import { useIsDarkMode } from '@/hooks/theme';
+import { useProfileTheme } from '@/hooks/useProfileTheme';
 import DebouncedResizeContainer from "@/components/DebouncedResizeContainer";
 import { useAtomValue } from 'jotai';
 import { dashPlayerDropAtom, useGetDashDataAge } from './dashboardHooks';
@@ -147,6 +148,8 @@ export default function PlayerDropCard() {
     const playerDropData = useAtomValue(dashPlayerDropAtom);
     const getDashDataAge = useGetDashDataAge();
 
+    const profileTheme = useProfileTheme();
+    
     const chartData = useMemo(() => {
         if (!playerDropData?.summaryLast6h) return null;
         const dataAge = getDashDataAge();
@@ -154,15 +157,20 @@ export default function PlayerDropCard() {
         if (!playerDropData.summaryLast6h.length) return 'not_enough_data';
 
         const totalDrops = playerDropData.summaryLast6h.reduce((acc, d) => acc + d[1], 0);
-        return playerDropData.summaryLast6h.map(([reason, count]) => ({
+        return playerDropData.summaryLast6h.map(([reason, count], index) => ({
             id: reason,
             label: playerDropCategories[reason]?.label ?? reason,
             count,
             value: count / totalDrops,
-            color: playerDropCategories[reason]?.color ?? playerDropCategoryDefaultColor,
-            border: playerDropCategories[reason]?.border ?? playerDropCategoryDefaultColor,
+            // Use profile-aware colors, falling back to category colors if available
+            color: profileTheme.chartColors[index % profileTheme.chartColors.length] || 
+                   playerDropCategories[reason]?.color || 
+                   playerDropCategoryDefaultColor,
+            border: profileTheme.chartColors[index % profileTheme.chartColors.length] || 
+                    playerDropCategories[reason]?.border || 
+                    playerDropCategoryDefaultColor,
         }));
-    }, [playerDropData?.summaryLast6h]);
+    }, [playerDropData?.summaryLast6h, profileTheme]);
 
 
     const displayLegends = useMemo(() => {
@@ -171,13 +179,17 @@ export default function PlayerDropCard() {
         if (dataAge.isExpired) return null;
         if (!playerDropData.summaryLast6h.length) return null;
 
-        return playerDropData.summaryLast6h.map(([reason, count]) => ({
+        return playerDropData.summaryLast6h.map(([reason, count], index) => ({
             id: reason,
             label: playerDropCategories[reason]?.label ?? reason,
-            color: playerDropCategories[reason]?.color ?? playerDropCategoryDefaultColor,
-            border: playerDropCategories[reason]?.border ?? playerDropCategoryDefaultColor,
+            color: profileTheme.chartColors[index % profileTheme.chartColors.length] || 
+                   playerDropCategories[reason]?.color || 
+                   playerDropCategoryDefaultColor,
+            border: profileTheme.chartColors[index % profileTheme.chartColors.length] || 
+                    playerDropCategories[reason]?.border || 
+                    playerDropCategoryDefaultColor,
         }));
-    }, [playerDropData?.summaryLast6h]);
+    }, [playerDropData?.summaryLast6h, profileTheme]);
 
 
     //Rendering

@@ -23,8 +23,8 @@ const language = typeDefinedConfig({
 
 const profile = typeDefinedConfig({
     name: 'UI Profile',
-    default: 'default',
-    validator: z.enum(['default', 'rylegames', 'zerod']),
+    default: 'rylegames',
+    validator: z.enum(['rylegames', 'zerod']),
     fixer: SYM_FIXER_DEFAULT,
 });
 

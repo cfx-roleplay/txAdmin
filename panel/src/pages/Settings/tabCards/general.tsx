@@ -174,28 +174,36 @@ export default function ConfigCardGeneral({ cardCtx, pageCtx }: SettingsCardProp
                             <SelectValue placeholder="Select profile..." />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="default">
-                                <div className="flex flex-col">
-                                    <span>Default</span>
-                                    <span className="text-xs text-muted-foreground">Default txAdmin theme</span>
-                                </div>
-                            </SelectItem>
                             <SelectItem value="rylegames">
-                                <div className="flex flex-col">
-                                    <span>RyleGames</span>
-                                    <span className="text-xs text-muted-foreground">Black theme with purple accents</span>
+                                <div className="flex items-center gap-3">
+                                    <img 
+                                        src="/img/rylegames-logo.png" 
+                                        alt="RyleGames"
+                                        className="w-6 h-6 rounded"
+                                    />
+                                    <div className="flex flex-col">
+                                        <span>RyleGames</span>
+                                        <span className="text-xs text-muted-foreground">Black theme with purple accents</span>
+                                    </div>
                                 </div>
                             </SelectItem>
                             <SelectItem value="zerod">
-                                <div className="flex flex-col">
-                                    <span>Zerod</span>
-                                    <span className="text-xs text-muted-foreground">Modern indigo, pink, and orange theme</span>
+                                <div className="flex items-center gap-3">
+                                    <img 
+                                        src="/img/zerod-logo.png" 
+                                        alt="Zerod"
+                                        className="w-6 h-6 rounded"
+                                    />
+                                    <div className="flex flex-col">
+                                        <span>Zerod</span>
+                                        <span className="text-xs text-muted-foreground">Modern indigo, pink, and orange theme</span>
+                                    </div>
                                 </div>
                             </SelectItem>
                         </SelectContent>
                     </Select>
                     <SettingItemDesc>
-                        Choose a UI profile to customize the appearance of txAdmin. <br />
+                        Choose between RyleGames or Zerod UI profiles to customize the appearance of txAdmin. <br />
                         <strong>Note:</strong> This setting affects all users and requires administrator permissions. <br />
                         Changes will be applied after saving and refreshing the page.
                     </SettingItemDesc>

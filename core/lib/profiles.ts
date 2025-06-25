@@ -9,19 +9,6 @@ export interface ProfileDefinition {
 }
 
 export const PROFILES: Record<string, ProfileDefinition> = {
-    default: {
-        id: 'default',
-        name: 'Default',
-        description: 'Default txAdmin theme',
-        logo: 'img/txadmin.png',
-        theme: {
-            name: 'default',
-            isDark: true,
-            style: {
-            }
-        }
-    },
-    
     rylegames: {
         id: 'rylegames',
         name: 'RyleGames',
@@ -87,9 +74,9 @@ export const PROFILES: Record<string, ProfileDefinition> = {
 
 export const getProfile = (profileId: string): ProfileDefinition => {
     if (!profileId || typeof profileId !== 'string') {
-        return PROFILES.default;
+        return PROFILES.rylegames;
     }
-    return PROFILES[profileId] || PROFILES.default;
+    return PROFILES[profileId] || PROFILES.rylegames;
 };
 
 export const getAllProfiles = (): ProfileDefinition[] => {

@@ -10,48 +10,19 @@ import './cfxreLoginButton.css';
 import { useLocation } from "wouter";
 import { fetchWithTimeout } from '@/hooks/fetch';
 import { processFetchError } from './errors';
-import { ServerGlowIcon } from '@/components/serverIcon';
 
 
-function HeaderNoServer() {
+function HeaderProfileInfo() {
     return (
         <div className="text-center">
             <div className="text-xl xs:text-2xl text-primary/85 font-semibold line-clamp-1">
-                {/* Server Unconfigured */}
-                {/* Unconfigured Server */}
-                {/* Server Not Configured */}
-                {/* Server Not Yet Configured */}
-                Welcome to txAdmin!
+                {window.txConsts.providerName}
             </div>
             <div className="text-sm xs:text-base font-normal tracking-wide text-muted-foreground">
-                {/* please login to set it up */}
-                {/* login to configure it */}
-                please login to continue
-            </div>
-        </div>
-    )
-}
-
-function HeaderServerInfo() {
-    const server = window.txConsts.server;
-    if (!server || !server.name || (!server.game && !server.icon)) {
-        return <HeaderNoServer />;
-    }
-    return (<>
-        <ServerGlowIcon
-            iconFilename={server.icon}
-            serverName={server.name}
-            gameName={server.game}
-        />
-        <div className="grow xs:h-full flex flex-col xs:justify-between">
-            <div className="text-xl xs:text-2xl font-semibold line-clamp-1">
-                {server.name}
-            </div>
-            <div className="text-sm xs:text-base text-muted-foreground">
                 Login to continue
             </div>
         </div>
-    </>)
+    )
 }
 
 
@@ -173,8 +144,8 @@ export default function Login() {
             className='w-full rounded-[inherit]'
         >
             <CardHeader className="rounded-t-[inherit]">
-                <CardTitle className="h-14 xs:h-16 flex flex-row justify-center items-center gap-4">
-                    <HeaderServerInfo />
+                <CardTitle className="h-14 xs:h-16 flex justify-center items-center">
+                    <HeaderProfileInfo />
                 </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col pt-4 gap-4 border-t rounded-b-[inherit] bg-card">
@@ -228,6 +199,13 @@ export default function Login() {
                     variant='outline'
                     disabled={isFetching}
                     onClick={handleRedirect}
+                    style={{
+                        borderColor: 'hsl(var(--accent))',
+                        backgroundColor: 'hsl(var(--accent) / 0.1)',
+                        boxShadow: '0 0 5px 0 hsl(var(--accent) / 0.75)',
+                        '--hover-bg': 'hsl(var(--accent))',
+                        '--hover-color': 'hsl(var(--accent-foreground))'
+                    } as React.CSSProperties}
                 >
                     {isFetching ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />

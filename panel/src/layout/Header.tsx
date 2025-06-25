@@ -18,6 +18,7 @@ import { playerCountAtom } from "@/hooks/playerlist";
 import { useAccountModal } from "@/hooks/dialogs";
 import { LogoSquareGreen, LogoFullSquareGreen } from "@/components/Logos";
 import { NavLink } from "@/components/MainPageLink";
+import { useThemedImage } from "@/hooks/theme";
 
 
 function ServerTitle() {
@@ -178,6 +179,8 @@ function AuthedHeaderFragment() {
 }
 
 export function Header() {
+    const customLogoUrl = useThemedImage(window.txConsts.providerLogo);
+
     return (
         <header className="sticky top-0 z-20 flex flex-col items-center justify-center
             border-b bg-card text-card-foreground border-card-background shadow-lg md:shadow-sm">
@@ -185,12 +188,27 @@ export function Header() {
                 <div className="flex flex-row items-center flex-grow gap-5 mr-5">
                     <div className="w-sidebar hidden xl:flex justify-center">
                         <NavLink href="/">
-                            {/* <h2 className="text-4xl font-bold text-pink-500 saturate-150">Option XYZ</h2> */}
-                            <LogoFullSquareGreen className="h-9 hover:scale-105 hover:brightness-110" />
+                            {customLogoUrl ? (
+                                <img
+                                    className="h-9 max-w-32 hover:scale-105 hover:brightness-110 transition-all object-contain"
+                                    src={customLogoUrl}
+                                    alt={window.txConsts.providerName}
+                                />
+                            ) : (
+                                <LogoFullSquareGreen className="h-9 hover:scale-105 hover:brightness-110" />
+                            )}
                         </NavLink>
                     </div>
                     <NavLink href="/" className="hidden sm:max-xl:block">
-                        <LogoSquareGreen className="h-8 w-8 lg:h-10 lg:w-10 hover:scale-105 hover:brightness-110" />
+                        {customLogoUrl ? (
+                            <img
+                                className="h-8 w-8 lg:h-10 lg:w-10 hover:scale-105 hover:brightness-110 transition-all object-contain"
+                                src={customLogoUrl}
+                                alt={window.txConsts.providerName}
+                            />
+                        ) : (
+                            <LogoSquareGreen className="h-8 w-8 lg:h-10 lg:w-10 hover:scale-105 hover:brightness-110" />
+                        )}
                     </NavLink>
 
                     <div className="lg:hidden">

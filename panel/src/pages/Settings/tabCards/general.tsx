@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, Sele
 import InlineCode from "@/components/InlineCode"
 import TxAnchor from "@/components/TxAnchor"
 import { txToast } from "@/components/TxToaster"
+import { useAdminPerms } from "@/hooks/auth"
 
 
 const detectBrowserLanguage = () => {
@@ -28,9 +29,11 @@ const detectBrowserLanguage = () => {
 export const pageConfigs = {
     serverName: getPageConfig('general', 'serverName'),
     language: getPageConfig('general', 'language'),
+    profile: getPageConfig('general', 'profile'),
 } as const;
 
 export default function ConfigCardGeneral({ cardCtx, pageCtx }: SettingsCardProps) {
+    const { hasPerm } = useAdminPerms();
     const [states, dispatch] = useReducer(
         configsReducer<typeof pageConfigs>,
         null,
@@ -70,7 +73,20 @@ export default function ConfigCardGeneral({ cardCtx, pageCtx }: SettingsCardProp
         if (localConfigs.general?.serverName?.length > 18) {
             return txToast.error('The Server Name is too big.');
         }
+        
+        // Check if profile was changed before saving
+        const profileChanged = localConfigs.general?.profile && localConfigs.general.profile !== cfg.profile.initialValue;
+        
+        // Save the changes
         pageCtx.saveChanges(cardCtx, localConfigs);
+        
+        // If profile was changed, refresh the page to apply the new theme
+        if (profileChanged) {
+            setTimeout(() => {
+                txToast.success('Profile saved! The page will refresh to apply the new theme.');
+                setTimeout(() => window.location.reload(), 1500);
+            }, 500);
+        }
     }
 
     //Small QOL to hoist the detected browser language to the top of the list
@@ -146,6 +162,45 @@ export default function ConfigCardGeneral({ cardCtx, pageCtx }: SettingsCardProp
                     For more information, please read the <TxAnchor href="https://github.com/tabarra/txAdmin/blob/master/docs/translation.md">documentation</TxAnchor>.
                 </SettingItemDesc>
             </SettingItem>
+
+            {hasPerm('settings.write') && (
+                <SettingItem label="UI Profile" htmlFor={cfg.profile.eid}>
+                    <Select
+                        value={states.profile}
+                        onValueChange={cfg.profile.state.set as any}
+                        disabled={pageCtx.isReadOnly}
+                    >
+                        <SelectTrigger id={cfg.profile.eid}>
+                            <SelectValue placeholder="Select profile..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="default">
+                                <div className="flex flex-col">
+                                    <span>Default</span>
+                                    <span className="text-xs text-muted-foreground">Default txAdmin theme</span>
+                                </div>
+                            </SelectItem>
+                            <SelectItem value="rylegames">
+                                <div className="flex flex-col">
+                                    <span>RyleGames</span>
+                                    <span className="text-xs text-muted-foreground">Black theme with purple accents</span>
+                                </div>
+                            </SelectItem>
+                            <SelectItem value="zerod">
+                                <div className="flex flex-col">
+                                    <span>Zerod</span>
+                                    <span className="text-xs text-muted-foreground">Modern indigo, pink, and orange theme</span>
+                                </div>
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <SettingItemDesc>
+                        Choose a UI profile to customize the appearance of txAdmin. <br />
+                        <strong>Note:</strong> This setting affects all users and requires administrator permissions. <br />
+                        Changes will be applied after saving and refreshing the page.
+                    </SettingItemDesc>
+                </SettingItem>
+            )}
         </SettingsCardShell>
     )
 }

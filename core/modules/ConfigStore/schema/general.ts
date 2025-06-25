@@ -21,8 +21,16 @@ const language = typeDefinedConfig({
     fixer: SYM_FIXER_DEFAULT,
 });
 
+const profile = typeDefinedConfig({
+    name: 'UI Profile',
+    default: 'default',
+    validator: z.enum(['default', 'rylegames', 'zerod']),
+    fixer: SYM_FIXER_DEFAULT,
+});
+
 
 export default {
     serverName,
     language,
+    profile,
 } as const;

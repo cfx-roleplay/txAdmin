@@ -8,6 +8,7 @@ import consts from "@shared/consts";
 import consoleFactory from '@lib/console';
 import { AuthedAdminType, checkRequestAuth } from "./authLogic";
 import { isString } from "@modules/CacheStore";
+import { getProfile } from "@core/lib/profiles";
 const console = consoleFactory(modulename);
 
 // NOTE: it's not possible to remove the hardcoded import of the entry point in the index.html file
@@ -33,45 +34,20 @@ const devModulesScript = `<script type="module">
     <script type="module" src="${viteOrigin}/src/main.tsx"></script>`;
 
 
-//Custom themes placeholder
+const getCurrentProfile = () => {
+    try {
+        const profileId = txConfig?.general?.profile || 'default';
+        return getProfile(profileId);
+    } catch (error) {
+        return getProfile('default');
+    }
+};
+
 export const tmpDefaultTheme = 'dark';
 export const tmpDefaultThemes = ['dark', 'light'];
-export const tmpCustomThemes: ThemeType[] = [
-    // {
-    //     name: 'deep-purple',
-    //     isDark: true,
-    //     style: {
-    //         "background": "274 93% 39%",
-    //         "foreground": "269 9% 100%",
-    //         "card": "274 79% 53%",
-    //         "card-foreground": "270 48% 99%",
-    //         "popover": "240 10% 3.9%",
-    //         "popover-foreground": "270 48% 99%",
-    //         "primary": "270 48% 99%",
-    //         "primary-foreground": "240 5.9% 10%",
-    //         "secondary": "240 3.7% 15.9%",
-    //         "secondary-foreground": "270 48% 99%",
-    //         "muted": "240 3.7% 15.9%",
-    //         "muted-foreground": "240 5% 64.9%",
-    //         "accent": "240 3.7% 15.9%",
-    //         "accent-foreground": "270 48% 99%",
-    //         "destructive": "0 62.8% 30.6%",
-    //         "destructive-foreground": "270 48% 99%",
-    //         "border": "273 79%, 53%",
-    //         "input": "240 3.7% 15.9%",
-    //         "ring": "240 4.9% 83.9%",
-    //     }
-    // }
-];
+export let tmpCustomThemes: ThemeType[] = [];
 
-
-
-/**
- * Returns the react index.html file with placeholders replaced
- * FIXME: add favicon
- */
 export default async function getReactIndex(ctx: CtxWithVars | AuthedCtx) {
-    //Read file if not cached
     if (txDevEnv.ENABLED || !htmlFile) {
         try {
             const indexPath = txDevEnv.ENABLED
@@ -79,7 +55,6 @@ export default async function getReactIndex(ctx: CtxWithVars | AuthedCtx) {
                 : path.join(txEnv.txaPath, 'panel/index.html')
             const rawHtmlFile = await fsp.readFile(indexPath, 'utf-8');
 
-            //Remove tagged lines (eg hardcoded entry point) depending on env
             if (txDevEnv.ENABLED) {
                 htmlFile = rawHtmlFile.replaceAll(/.+data-prod-only.+\r?\n/gm, '');
             } else {
@@ -94,7 +69,6 @@ export default async function getReactIndex(ctx: CtxWithVars | AuthedCtx) {
         }
     }
 
-    //Checking if already logged in
     const authResult = checkRequestAuth(
         ctx.request.headers,
         ctx.ip,
@@ -106,8 +80,15 @@ export default async function getReactIndex(ctx: CtxWithVars | AuthedCtx) {
         authedAdmin = authResult.admin;
     }
 
-    //Preparing vars
     const basePath = (ctx.txVars.isWebInterface) ? '/' : consts.nuiWebpipePath;
+    const currentProfile = getCurrentProfile();
+
+    if (currentProfile.id === 'default') {
+        tmpCustomThemes = [];
+    } else {
+        tmpCustomThemes = [currentProfile.theme];
+    }
+
     const injectedConsts: InjectedTxConsts = {
         //env
         fxsVersion: txEnv.fxsVersionTag,
@@ -122,8 +103,8 @@ export default async function getReactIndex(ctx: CtxWithVars | AuthedCtx) {
         defaultTheme: tmpDefaultTheme,
         customThemes: tmpCustomThemes.map(({ name, isDark }) => ({ name, isDark })),
         adsData: txEnv.adsData,
-        providerLogo: txHostConfig.providerLogo,
-        providerName: txHostConfig.providerName,
+        providerLogo: currentProfile.logo,
+        providerName: currentProfile.name,
         hostConfigSource: txHostConfig.sourceName,
 
         //Login page info
@@ -145,37 +126,52 @@ export default async function getReactIndex(ctx: CtxWithVars | AuthedCtx) {
     replacers.txConstsInjection = `<script>window.txConsts = ${JSON.stringify(injectedConsts)};</script>`;
     replacers.devModules = txDevEnv.ENABLED ? devModulesScript : '';
 
-    //Prepare custom themes style tag
     if (tmpCustomThemes.length) {
         const cssThemes = [];
         for (const theme of tmpCustomThemes) {
-            const cssVars = [];
+            const brandingVars = [];
+
+            const safeBrandingKeys = [
+                'background', 'foreground', 'card', 'card-foreground',
+                'popover', 'popover-foreground', 'secondary', 'secondary-foreground',
+                'muted', 'muted-foreground', 'accent', 'accent-foreground',
+                'border', 'input', 'ring', 'radius'
+            ];
+
             for (const [name, value] of Object.entries(theme.style)) {
-                cssVars.push(`--${name}: ${value};`);
+                if (safeBrandingKeys.includes(name)) {
+                    brandingVars.push(`    --${name}: ${value};`);
+                }
             }
-            cssThemes.push(`.theme-${theme.name} { ${cssVars.join(' ')} }`);
+
+            const themeCSS = `
+.theme-${theme.name} {
+${brandingVars.join('\n')}
+}
+.dark.theme-${theme.name} {
+${brandingVars.join('\n')}
+}`;
+            cssThemes.push(themeCSS);
         }
         replacers.customThemesStyle = `<style>${cssThemes.join('\n')}</style>`;
     } else {
         replacers.customThemesStyle = '';
     }
 
-    //Setting the theme class from the cookie
-    const themeCookie = ctx.cookies.get('txAdmin-theme');
-    if (themeCookie) {
-        if (tmpDefaultThemes.includes(themeCookie)) {
+    //Setting the theme class based on profile
+    if (currentProfile.id === 'default') {
+        // For default profile, use the theme cookie or default to dark
+        const themeCookie = ctx.cookies.get('txAdmin-theme');
+        if (themeCookie && tmpDefaultThemes.includes(themeCookie)) {
             replacers.htmlClasses = themeCookie;
         } else {
-            const selectedCustomTheme = tmpCustomThemes.find((theme) => theme.name === themeCookie);
-            if (!selectedCustomTheme) {
-                replacers.htmlClasses = tmpDefaultTheme;
-            } else {
-                const lightDarkSelector = selectedCustomTheme.isDark ? 'dark' : 'light';
-                replacers.htmlClasses = `${lightDarkSelector} theme-${selectedCustomTheme.name}`;
-            }
+            replacers.htmlClasses = tmpDefaultTheme;
         }
     } else {
-        replacers.htmlClasses = tmpDefaultTheme;
+        // For custom profiles, always use the profile's theme
+        const profileTheme = currentProfile.theme;
+        const lightDarkSelector = profileTheme.isDark ? 'dark' : 'light';
+        replacers.htmlClasses = `${lightDarkSelector} theme-${profileTheme.name}`;
     }
 
     //Replace

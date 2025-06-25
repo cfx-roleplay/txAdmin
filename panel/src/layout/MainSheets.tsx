@@ -7,11 +7,13 @@ import { ClipboardCheckIcon, DoorOpenIcon, ListIcon, PieChartIcon, ScrollIcon, S
 import { PlayerlistSidebar } from "./PlayerlistSidebar/PlayerlistSidebar";
 import { useAdminPerms } from "@/hooks/auth";
 import { LogoFullSquareGreen } from "@/components/Logos";
+import { useThemedImage } from "@/hooks/theme";
 
 
 export function GlobalMenuSheet() {
     const { isSheetOpen, setIsSheetOpen } = useGlobalMenuSheet();
     const { hasPerm } = useAdminPerms();
+    const customLogoUrl = useThemedImage(window.txConsts.providerLogo);
 
     return (
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -24,7 +26,15 @@ export function GlobalMenuSheet() {
                     <SheetHeader>
                         <SheetTitle className="py-6">
                             <NavLink href="/">
-                                <LogoFullSquareGreen className="h-9 hover:scale-105 hover:brightness-110" />
+                                {customLogoUrl ? (
+                                    <img
+                                        className="h-9 max-w-32 hover:scale-105 hover:brightness-110 transition-all object-contain"
+                                        src={customLogoUrl}
+                                        alt={window.txConsts.providerName}
+                                    />
+                                ) : (
+                                    <LogoFullSquareGreen className="h-9 hover:scale-105 hover:brightness-110" />
+                                )}
                             </NavLink>
                         </SheetTitle>
                     </SheetHeader>

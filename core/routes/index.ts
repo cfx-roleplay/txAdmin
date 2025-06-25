@@ -72,6 +72,8 @@ export { default as advanced_actions } from './advanced/actions';
 //FIXME: reorganizar TODAS rotas de logs, incluindo listagem e download
 export { default as serverLog } from './serverLog.js';
 export { default as serverLogPartial } from './serverLogPartial.js';
+export { default as serverLog_data } from './serverLog/data';
+export { default as serverLog_partial } from './serverLog/partial';
 
 export { default as host_status } from './hostStatus';
 

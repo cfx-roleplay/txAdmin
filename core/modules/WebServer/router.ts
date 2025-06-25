@@ -93,6 +93,8 @@ export default () => {
 
     //Data routes
     router.get('/serverLog/partial', apiAuthMw, routes.serverLogPartial);
+    router.get('/serverLog', apiAuthMw, routes.serverLog_data);
+    router.get('/serverLog/history', apiAuthMw, routes.serverLog_partial);
     router.get('/systemLog/:scope', apiAuthMw, routes.systemLogs);
     router.get('/perfChartData/:thread', apiAuthMw, routes.perfChart);
     router.get('/playerDropsData', apiAuthMw, routes.playerDrops);

@@ -19,6 +19,7 @@ import PlayerDropsPage from "@/pages/PlayerDropsPage/PlayerDropsPage";
 import SettingsPage from "@/pages/Settings/SettingsPage";
 import ResourcesPage from "@/pages/Resources/ResourcesPage";
 import CfgEditorPage from "@/pages/CfgEditor/CfgEditorPage";
+import ServerLogPage from "@/pages/ServerLog/ServerLogPage";
 import { useAdminPerms } from "@/hooks/auth";
 import UnauthorizedPage from "@/pages/UnauthorizedPage";
 
@@ -108,7 +109,7 @@ const allRoutes: RouteType[] = [
         path: '/server/server-log',
         title: 'Server Log',
         permission: 'server.log.view',
-        Page: <Iframe legacyUrl="serverLog" />
+        Page: <ServerLogPage />
     },
     {
         path: '/server/cfg-editor',

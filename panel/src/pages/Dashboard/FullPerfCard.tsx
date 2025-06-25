@@ -1,7 +1,8 @@
 import { LineChartIcon, Loader2Icon } from 'lucide-react';
 import React, { ReactNode, memo, useEffect, useMemo, useRef, useState } from 'react';
 import DebouncedResizeContainer from '@/components/DebouncedResizeContainer';
-import drawFullPerfChart from './drawFullPerfChart';
+import ModernFullPerfChart from './ModernFullPerfChart';
+import PerformanceExplanation from './PerformanceExplanation';
 import { useBackendApi } from '@/hooks/fetch';
 import type { PerfChartApiResp, PerfChartApiSuccessResp } from "@shared/otherTypes";
 import useSWR from 'swr';
@@ -26,18 +27,7 @@ type FullPerfChartProps = {
 
 const FullPerfChart = memo(({ threadName, apiData, apiDataAge, width, height, isDarkMode, profileTheme }: FullPerfChartProps) => {
     const setServerStats = useSetAtom(dashServerStatsAtom);
-    const svgRef = useRef<SVGSVGElement>(null);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [renderError, setRenderError] = useState('');
-    const [errorRetry, setErrorRetry] = useState(0);
     const setCursor = useThrottledSetCursor();
-    const margins = {
-        top: 8,
-        right: 50,
-        bottom: 30,
-        left: 40,
-        axis: 1
-    };
 
     //Process data only once
     const processedData = useMemo(() => {
@@ -62,7 +52,7 @@ const FullPerfChart = memo(({ threadName, apiData, apiDataAge, width, height, is
                 });
             },
         }
-    }, [apiData, apiDataAge, threadName, isDarkMode, renderError, profileTheme]);
+    }, [apiData, apiDataAge, threadName, setCursor]);
 
     //Update server stats when data changes
     useEffect(() => {
@@ -72,80 +62,23 @@ const FullPerfChart = memo(({ threadName, apiData, apiDataAge, width, height, is
             const serverStatsData = getServerStatsData(processedData.lifespans, 24, apiDataAge);
             setServerStats(serverStatsData);
         }
-    }, [processedData, apiDataAge]);
+    }, [processedData, apiDataAge, setServerStats]);
 
+    if (!width || !height || !processedData) return null;
+    if (!processedData.lifespans.length) return null; //only in case somehow the api returned, but no data found
 
-    //Redraw chart when data or size changes
-    useEffect(() => {
-        if (!processedData || !svgRef.current || !canvasRef.current || !width || !height) return;
-        if (!processedData.lifespans.length) return; //only in case somehow the api returned, but no data found
-        try {
-            console.groupCollapsed('Drawing full performance chart:');
-            console.time('drawFullPerfChart');
-            drawFullPerfChart({
-                svgRef: svgRef.current,
-                canvasRef: canvasRef.current,
-                setRenderError,
-                size: { width, height },
-                margins,
-                isDarkMode,
-                profileTheme,
-                threadName,
-                ...processedData,
-            });
-            setErrorRetry(0);
-            setRenderError('');
-            console.timeEnd('drawFullPerfChart');
-        } catch (error) {
-            setRenderError((error as Error).message ?? 'Unknown error.');
-        } finally {
-            console.groupEnd();
-        }
-    }, [processedData, width, height, svgRef, canvasRef, renderError, profileTheme]);
-
-
-    if (!width || !height) return null;
-    if (renderError) {
-        return <div className="absolute inset-0 p-4 flex flex-col gap-4 items-center justify-center text-center text-lg font-mono text-destructive-inline">
-            Render Error: {renderError}
-            <br />
-            <Button
-                size={'sm'}
-                variant={'outline'}
-                className='text-primary'
-                onClick={() => {
-                    setErrorRetry(c => c + 1);
-                    setRenderError('');
-                }}
-            >
-                Retry{errorRetry ? ` (${errorRetry})` : ''}
-            </Button>
-        </div>
-    }
-    return (<>
-        <svg
-            ref={svgRef}
+    return (
+        <ModernFullPerfChart
+            threadName={threadName}
+            bucketLabels={processedData.bucketLabels}
+            dataStart={processedData.dataStart}
+            dataEnd={processedData.dataEnd}
+            lifespans={processedData.lifespans}
+            cursorSetter={processedData.cursorSetter}
             width={width}
             height={height}
-            style={{
-                zIndex: 1,
-                position: 'absolute',
-                top: '0px',
-                left: '0px',
-            }}
         />
-        <canvas
-            ref={canvasRef}
-            width={width - margins.left - margins.right}
-            height={height - margins.top - margins.bottom}
-            style={{
-                zIndex: 0,
-                position: 'absolute',
-                top: `${margins.top}px`,
-                left: `${margins.left}px`,
-            }}
-        />
-    </>);
+    );
 });
 
 function ChartErrorMessage({ error }: { error: Error | string }) {
@@ -198,40 +131,44 @@ export default function FullPerfCard() {
         if (!data) throw new Error('empty_response');
         if ('fail_reason' in data) {
             setApiFailReason(data.fail_reason);
-            return null;
+            throw new Error(data.fail_reason);
         }
         setApiDataAge(Date.now());
         return data;
     }, {
-        //the data min interval is 5 mins, so we can safely cache for 1 min
-        revalidateOnMount: true,
+        refreshInterval: 60_000,
         revalidateOnFocus: false,
-        refreshInterval: 60 * 1000,
     });
 
-    //Rendering
-    let contentNode: React.ReactNode = null;
-    if (swrChartApiResp.data) {
-        contentNode = <FullPerfChart
-            threadName={selectedThread}
-            apiData={swrChartApiResp.data as PerfChartApiSuccessResp}
-            apiDataAge={apiDataAge}
-            width={chartSize.width}
-            height={chartSize.height}
-            isDarkMode={isDarkMode}
-            profileTheme={profileTheme}
-        />;
-    } else if (swrChartApiResp.isLoading) {
-        contentNode = <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <Loader2Icon className="animate-spin size-16 text-muted-foreground" />
-        </div>;
-    } else if (apiFailReason || swrChartApiResp.error) {
-        contentNode = <ChartErrorMessage error={apiFailReason || swrChartApiResp.error} />;
+    let contentNode: ReactNode;
+    if (swrChartApiResp.isLoading) {
+        contentNode = <div className="absolute inset-0 flex items-center justify-center">
+            <Loader2Icon className="animate-spin w-8 h-8 text-muted-foreground" />
+        </div>
+    } else if (swrChartApiResp.error || apiFailReason) {
+        const error = swrChartApiResp.error ?? apiFailReason;
+        contentNode = <ChartErrorMessage error={error} />
+    } else if (swrChartApiResp.data) {
+        contentNode = <>
+            <FullPerfChart
+                threadName={selectedThread}
+                apiData={swrChartApiResp.data as PerfChartApiSuccessResp}
+                apiDataAge={apiDataAge}
+                width={chartSize.width}
+                height={chartSize.height}
+                isDarkMode={isDarkMode}
+                profileTheme={profileTheme}
+            />
+        </>;
+    } else {
+        contentNode = <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+            No Data Available
+        </div>
     }
 
     return (
-        <div className="w-full h-[28rem] pt-2 md:rounded-xl border bg-card shadow-sm flex flex-col fill-primary">
-            <div className="px-4 flex flex-row items-center justify-between space-y-0 pb-2 text-muted-foreground">
+        <div className="w-full md:rounded-xl border bg-card shadow-sm flex flex-col fill-primary">
+            <div className="px-4 flex flex-row items-center justify-between space-y-0 pb-2 text-muted-foreground pt-2">
                 <h3 className="tracking-tight text-sm font-medium line-clamp-1">
                     Server performance
                 </h3>
@@ -255,9 +192,16 @@ export default function FullPerfCard() {
                     <div className='hidden xs:block'><LineChartIcon /></div>
                 </div>
             </div>
-            <DebouncedResizeContainer onDebouncedResize={setChartSize}>
-                {contentNode}
-            </DebouncedResizeContainer>
+            <div className="h-[28rem] relative">
+                <DebouncedResizeContainer onDebouncedResize={setChartSize}>
+                    {contentNode}
+                </DebouncedResizeContainer>
+            </div>
+            
+            {/* Performance Explanation */}
+            <div className="px-4 pb-4">
+                <PerformanceExplanation threadName={selectedThread} />
+            </div>
         </div>
     );
 }

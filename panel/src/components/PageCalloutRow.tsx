@@ -57,7 +57,7 @@ export default function PageCalloutRow({ callouts }: PageCalloutRowProps) {
             case 0: return profileTheme.primary;
             case 1: return profileTheme.secondary;
             case 2: return profileTheme.accent;
-            case 3: return profileTheme.performanceColors.warning;
+            case 3: return '#f59e0b'; // amber-500 (warning)
             default: return profileTheme.primary;
         }
     };

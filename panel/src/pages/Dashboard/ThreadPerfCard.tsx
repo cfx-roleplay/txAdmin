@@ -200,30 +200,35 @@ export default function ThreadPerfCard() {
         const minTickInterval = PERF_MIN_TICK_TIME[threadName];
         const minTickIntervalMarker = getMinTickIntervalMarker(perfBoundaries, minTickInterval);
         const minTickIntervalIndex = perfBoundaries.findIndex(b => b === minTickIntervalMarker);
+        
+        // Fixed performance colors for thread performance indicators
+        const threadPerformanceColors = {
+            good: '#10b981',     // emerald-500
+            warning: '#f59e0b',  // amber-500
+            danger: '#ef4444',   // red-500
+        };
+        
         // Create performance color function using d3 interpolation for specific thread
         const createColorFunc = () => {
             const totalBuckets = perfBoundaries.length;
-            const threadColors = profileTheme.performanceColors[threadName as keyof typeof profileTheme.performanceColors];
-            const threadInterpolation = profileTheme.chartInterpolation[threadName as keyof typeof profileTheme.chartInterpolation];
+            const threadColors = threadPerformanceColors;
             
             return (bucketNum: number) => {
                 const normalizedIndex = bucketNum / totalBuckets;
                 
                 if (minTickIntervalIndex && bucketNum <= minTickIntervalIndex) {
-                    // Good performance range - use thread-specific "good" interpolation
+                    // Good performance range - use fixed green interpolation
                     const ratio = bucketNum / (minTickIntervalIndex + 1);
-                    const goodInterp = typeof threadInterpolation === 'string' ? 'interpolateBlues' : threadInterpolation.good;
-                    const interpolator = d3ScaleChromatic[goodInterp as keyof typeof d3ScaleChromatic] as any;
+                    const interpolator = d3ScaleChromatic.interpolateBlues;
                     return interpolator ? interpolator(ratio) : threadColors.good;
                 } else if (minTickIntervalIndex && bucketNum > minTickIntervalIndex) {
-                    // Poor performance range - use thread-specific "bad" interpolation  
+                    // Poor performance range - use fixed red interpolation  
                     const poorRatio = (bucketNum - minTickIntervalIndex) / (totalBuckets - minTickIntervalIndex);
-                    const badInterp = typeof threadInterpolation === 'string' ? 'interpolateReds' : threadInterpolation.bad;
-                    const interpolator = d3ScaleChromatic[badInterp as keyof typeof d3ScaleChromatic] as any;
+                    const interpolator = d3ScaleChromatic.interpolateReds;
                     return interpolator ? interpolator(poorRatio) : threadColors.danger;
                 } else {
                     // No min tick interval - use general interpolation
-                    const interpolator = d3ScaleChromatic[profileTheme.chartInterpolation.general as keyof typeof d3ScaleChromatic] as any;
+                    const interpolator = d3ScaleChromatic.interpolateViridis;
                     return interpolator ? interpolator(normalizedIndex) : profileTheme.chartColors[bucketNum % profileTheme.chartColors.length];
                 }
             };

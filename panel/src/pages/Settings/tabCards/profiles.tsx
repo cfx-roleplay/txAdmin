@@ -37,51 +37,6 @@ interface ProfileTheme {
         ring: string;
         radius: string;
     };
-    performance: {
-        svMain: {
-            excellent: string;
-            good: string;
-            warning: string;
-            danger: string;
-        };
-        svSync: {
-            excellent: string;
-            good: string;
-            warning: string;
-            danger: string;
-        };
-        svNetwork: {
-            excellent: string;
-            good: string;
-            warning: string;
-            danger: string;
-        };
-        server: {
-            excellent: string;
-            good: string;
-            warning: string;
-            danger: string;
-        };
-    };
-    chartInterpolation: {
-        svMain: {
-            good: string;
-            bad: string;
-        };
-        svSync: {
-            good: string;
-            bad: string;
-        };
-        svNetwork: {
-            good: string;
-            bad: string;
-        };
-        server: {
-            good: string;
-            bad: string;
-        };
-        general: string;
-    };
 }
 
 interface ProfileDefinition {
@@ -109,53 +64,6 @@ const defaultStyle: ProfileTheme['style'] = {
     input: "0 0% 15%",
     ring: "270 91% 65%",
     radius: "0.5rem"
-};
-
-const defaultPerformance: ProfileTheme['performance'] = {
-    svMain: {
-        excellent: "134 61% 41%", // emerald-600
-        good: "262 83% 58%",      // violet-500  
-        warning: "32 95% 44%",    // orange-600
-        danger: "0 84% 60%"       // red-500
-    },
-    svSync: {
-        excellent: "134 61% 41%", // emerald-600
-        good: "262 83% 58%",      // violet-500
-        warning: "32 95% 44%",    // orange-600 
-        danger: "0 84% 60%"       // red-500
-    },
-    svNetwork: {
-        excellent: "134 61% 41%", // emerald-600
-        good: "262 83% 58%",      // violet-500
-        warning: "32 95% 44%",    // orange-600
-        danger: "0 84% 60%"       // red-500
-    },
-    server: {
-        excellent: "134 61% 41%", // emerald-600
-        good: "221 83% 53%",      // blue-500
-        warning: "32 95% 44%",    // orange-600
-        danger: "0 84% 60%"       // red-500
-    }
-};
-
-const defaultChartInterpolation: ProfileTheme['chartInterpolation'] = {
-    svMain: {
-        good: 'interpolatePurples',
-        bad: 'interpolateOrRd'
-    },
-    svSync: {
-        good: 'interpolateBlues', 
-        bad: 'interpolateReds'
-    },
-    svNetwork: {
-        good: 'interpolateGreens',
-        bad: 'interpolateOranges'
-    },
-    server: {
-        good: 'interpolateBlues',
-        bad: 'interpolateReds'
-    },
-    general: 'interpolateViridis'
 };
 
 // HSL string to hex conversion
@@ -247,51 +155,6 @@ const initialProfiles: ProfileDefinition[] = [
                 input: "0 0% 15%",
                 ring: "270 91% 65%",
                 radius: "0.5rem"
-            },
-            performance: {
-                svMain: {
-                    excellent: "134 61% 41%", // emerald-600 - original default
-                    good: "262 83% 58%",      // violet-500 - original default
-                    warning: "32 95% 44%",    // orange-600 - original default
-                    danger: "0 84% 60%"       // red-500 - original default
-                },
-                svSync: {
-                    excellent: "134 61% 41%", // emerald-600 - original default
-                    good: "262 83% 58%",      // violet-500 - original default
-                    warning: "32 95% 44%",    // orange-600 - original default
-                    danger: "0 84% 60%"       // red-500 - original default
-                },
-                svNetwork: {
-                    excellent: "134 61% 41%", // emerald-600 - original default
-                    good: "262 83% 58%",      // violet-500 - original default
-                    warning: "32 95% 44%",    // orange-600 - original default
-                    danger: "0 84% 60%"       // red-500 - original default
-                },
-                server: {
-                    excellent: "134 61% 41%", // emerald-600 - original default
-                    good: "221 83% 53%",      // blue-500 - original default
-                    warning: "32 95% 44%",    // orange-600 - original default
-                    danger: "0 84% 60%"       // red-500 - original default
-                }
-            },
-            chartInterpolation: {
-                svMain: {
-                    good: 'interpolatePurples',   // Original default
-                    bad: 'interpolateOrRd'        // Original default
-                },
-                svSync: {
-                    good: 'interpolateBlues',     // Original default
-                    bad: 'interpolateReds'        // Original default
-                },
-                svNetwork: {
-                    good: 'interpolateGreens',    // Original default
-                    bad: 'interpolateOranges'     // Original default
-                },
-                server: {
-                    good: 'interpolateBlues',     // Original default
-                    bad: 'interpolateReds'        // Original default
-                },
-                general: 'interpolateViridis'     // Original default
             }
         }
     },
@@ -320,51 +183,6 @@ const initialProfiles: ProfileDefinition[] = [
                 input: "230 25% 15%",
                 ring: "225 83% 53%",
                 radius: "0.5rem"
-            },
-            performance: {
-                svMain: {
-                    excellent: "134 61% 41%", // emerald-600 - original default
-                    good: "262 83% 58%",      // violet-500 - original default
-                    warning: "32 95% 44%",    // orange-600 - original default
-                    danger: "0 84% 60%"       // red-500 - original default
-                },
-                svSync: {
-                    excellent: "134 61% 41%", // emerald-600 - original default
-                    good: "262 83% 58%",      // violet-500 - original default
-                    warning: "32 95% 44%",    // orange-600 - original default
-                    danger: "0 84% 60%"       // red-500 - original default
-                },
-                svNetwork: {
-                    excellent: "134 61% 41%", // emerald-600 - original default
-                    good: "262 83% 58%",      // violet-500 - original default
-                    warning: "32 95% 44%",    // orange-600 - original default
-                    danger: "0 84% 60%"       // red-500 - original default
-                },
-                server: {
-                    excellent: "134 61% 41%", // emerald-600 - original default
-                    good: "221 83% 53%",      // blue-500 - original default
-                    warning: "32 95% 44%",    // orange-600 - original default
-                    danger: "0 84% 60%"       // red-500 - original default
-                }
-            },
-            chartInterpolation: {
-                svMain: {
-                    good: 'interpolatePurples',   // Original default
-                    bad: 'interpolateOrRd'        // Original default
-                },
-                svSync: {
-                    good: 'interpolateBlues',     // Original default
-                    bad: 'interpolateReds'        // Original default
-                },
-                svNetwork: {
-                    good: 'interpolateGreens',    // Original default
-                    bad: 'interpolateOranges'     // Original default
-                },
-                server: {
-                    good: 'interpolateBlues',     // Original default
-                    bad: 'interpolateReds'        // Original default
-                },
-                general: 'interpolateViridis'     // Original default
             }
         }
     }
@@ -388,8 +206,6 @@ function ProfileEditor({ profile, onSave, onCancel, isOpen }: ProfileEditorProps
                 name: '',
                 isDark: true,
                 style: { ...defaultStyle },
-                performance: { ...defaultPerformance },
-                chartInterpolation: { ...defaultChartInterpolation }
             }
         }
     );
@@ -410,19 +226,8 @@ function ProfileEditor({ profile, onSave, onCancel, isOpen }: ProfileEditorProps
     };
 
     const updateThemeStyle = (styleKey: keyof ProfileTheme['style'], value: string) => {
-        if (styleKey === 'radius') {
-            setEditingProfile(prev => ({
-                ...prev,
-                theme: {
-                    ...prev.theme,
-                    style: {
-                        ...prev.theme.style,
-                        [styleKey]: value
-                    }
-                }
-            }));
-        } else {
-            const hslValue = hexToHsl(value);
+        const hslValue = hexToHsl(value);
+        if (editingProfile) {
             setEditingProfile(prev => ({
                 ...prev,
                 theme: {
@@ -434,47 +239,6 @@ function ProfileEditor({ profile, onSave, onCancel, isOpen }: ProfileEditorProps
                 }
             }));
         }
-    };
-
-    const updatePerformanceColor = (
-        thread: keyof ProfileTheme['performance'], 
-        colorType: keyof ProfileTheme['performance']['svMain'], 
-        value: string
-    ) => {
-        const hslValue = hexToHsl(value);
-        setEditingProfile(prev => ({
-            ...prev,
-            theme: {
-                ...prev.theme,
-                performance: {
-                    ...prev.theme.performance,
-                    [thread]: {
-                        ...prev.theme.performance[thread],
-                        [colorType]: hslValue
-                    }
-                }
-            }
-        }));
-    };
-
-    const updateChartInterpolation = (
-        thread: keyof ProfileTheme['chartInterpolation'], 
-        type: 'good' | 'bad' | 'general', 
-        value: string
-    ) => {
-        setEditingProfile(prev => ({
-            ...prev,
-            theme: {
-                ...prev.theme,
-                chartInterpolation: {
-                    ...prev.theme.chartInterpolation,
-                    [thread]: thread === 'general' ? value : {
-                        ...(prev.theme.chartInterpolation[thread] as any),
-                        [type]: value
-                    }
-                }
-            }
-        }));
     };
 
     const handleSave = () => {
@@ -581,142 +345,41 @@ function ProfileEditor({ profile, onSave, onCancel, isOpen }: ProfileEditorProps
                         </div>
                     </div>
 
-                    {/* Performance Colors Configuration */}
-                    <div className="space-y-4">
-                    <div>
-                        <h4 className="font-medium mb-3">Performance Colors</h4>
-                        <p className="text-sm text-muted-foreground mb-4">
-                            Configure colors for different performance levels across server threads
-                        </p>
-                        
-                        {(['svMain', 'svSync', 'svNetwork', 'server'] as const).map((thread) => (
-                            <div key={thread} className="mb-6 p-4 border rounded-lg">
-                                <h5 className="font-medium mb-3 capitalize">
-                                    {thread === 'svMain' ? 'SV Main Thread' : 
-                                     thread === 'svSync' ? 'SV Sync Thread' :
-                                     thread === 'svNetwork' ? 'SV Network Thread' : 'Server Performance'}
-                                </h5>
-                                <div className="grid grid-cols-2 gap-3">
-                                    {(['excellent', 'good', 'warning', 'danger'] as const).map((level) => (
-                                        <ColorPicker
-                                            key={`${thread}-${level}`}
-                                            label={level.charAt(0).toUpperCase() + level.slice(1)}
-                                            value={hslToHex(editingProfile.theme.performance[thread][level])}
-                                            onChange={(color) => updatePerformanceColor(thread, level, color)}
-                                            className="text-sm"
-                                        />
-                                    ))}
+                    {/* Preview */}
+                    <div className="mt-6">
+                        <Label>Preview</Label>
+                        <Card className="mt-2" style={{
+                            backgroundColor: hslToHex(editingProfile.theme.style.card),
+                            borderColor: hslToHex(editingProfile.theme.style.border),
+                            color: hslToHex(editingProfile.theme.style.foreground)
+                        }}>
+                            <CardHeader>
+                                <CardTitle style={{ color: hslToHex(editingProfile.theme.style.accent) }}>
+                                    {editingProfile.name || 'Profile Preview'}
+                                </CardTitle>
+                                <CardDescription>
+                                    {editingProfile.description || 'This is how your profile will look'}
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex gap-2">
+                                    <Button style={{
+                                        backgroundColor: hslToHex(editingProfile.theme.style.accent),
+                                        color: hslToHex(editingProfile.theme.style['accent-foreground'])
+                                    }}>
+                                        Primary Button
+                                    </Button>
+                                    <Button variant="outline" style={{
+                                        borderColor: hslToHex(editingProfile.theme.style.border),
+                                        backgroundColor: hslToHex(editingProfile.theme.style.secondary),
+                                        color: hslToHex(editingProfile.theme.style['secondary-foreground'])
+                                    }}>
+                                        Secondary Button
+                                    </Button>
                                 </div>
-                                
-                                {/* Chart Interpolation Settings */}
-                                <div className="mt-4 pt-3 border-t">
-                                    <h6 className="text-sm font-medium mb-2">Chart Interpolation</h6>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <Label className="text-xs">Good Performance</Label>
-                                            <Select
-                                                value={editingProfile.theme.chartInterpolation[thread].good}
-                                                onValueChange={(value) => updateChartInterpolation(thread, 'good', value)}
-                                            >
-                                                <SelectTrigger className="h-8">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="interpolateBlues">Blues</SelectItem>
-                                                    <SelectItem value="interpolateGreens">Greens</SelectItem>
-                                                    <SelectItem value="interpolatePurples">Purples</SelectItem>
-                                                    <SelectItem value="interpolateViridis">Viridis</SelectItem>
-                                                    <SelectItem value="interpolatePlasma">Plasma</SelectItem>
-                                                    <SelectItem value="interpolateInferno">Inferno</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div>
-                                            <Label className="text-xs">Poor Performance</Label>
-                                            <Select
-                                                value={editingProfile.theme.chartInterpolation[thread].bad}
-                                                onValueChange={(value) => updateChartInterpolation(thread, 'bad', value)}
-                                            >
-                                                <SelectTrigger className="h-8">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="interpolateReds">Reds</SelectItem>
-                                                    <SelectItem value="interpolateOranges">Oranges</SelectItem>
-                                                    <SelectItem value="interpolateOrRd">Orange-Red</SelectItem>
-                                                    <SelectItem value="interpolateYlOrRd">Yellow-Orange-Red</SelectItem>
-                                                    <SelectItem value="interpolatePinks">Pinks</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                        
-                        {/* General Chart Interpolation */}
-                        <div className="p-4 border rounded-lg">
-                            <h5 className="font-medium mb-3">General Charts</h5>
-                            <div>
-                                <Label className="text-sm">Default Interpolation</Label>
-                                <Select
-                                    value={editingProfile.theme.chartInterpolation.general}
-                                    onValueChange={(value) => updateChartInterpolation('general', 'general', value)}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="interpolateViridis">Viridis</SelectItem>
-                                        <SelectItem value="interpolatePlasma">Plasma</SelectItem>
-                                        <SelectItem value="interpolateInferno">Inferno</SelectItem>
-                                        <SelectItem value="interpolateMagma">Magma</SelectItem>
-                                        <SelectItem value="interpolateWarm">Warm</SelectItem>
-                                        <SelectItem value="interpolateCool">Cool</SelectItem>
-                                        <SelectItem value="interpolateRainbow">Rainbow</SelectItem>
-                                        <SelectItem value="interpolateSinebow">Sinebow</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
+                            </CardContent>
+                        </Card>
                     </div>
-                </div>
-                </div>
-
-                {/* Preview */}
-                <div className="mt-6">
-                    <Label>Preview</Label>
-                    <Card className="mt-2" style={{
-                        backgroundColor: hslToHex(editingProfile.theme.style.card),
-                        borderColor: hslToHex(editingProfile.theme.style.border),
-                        color: hslToHex(editingProfile.theme.style.foreground)
-                    }}>
-                        <CardHeader>
-                            <CardTitle style={{ color: hslToHex(editingProfile.theme.style.accent) }}>
-                                {editingProfile.name || 'Profile Preview'}
-                            </CardTitle>
-                            <CardDescription>
-                                {editingProfile.description || 'This is how your profile will look'}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex gap-2">
-                                <Button style={{
-                                    backgroundColor: hslToHex(editingProfile.theme.style.accent),
-                                    color: hslToHex(editingProfile.theme.style['accent-foreground'])
-                                }}>
-                                    Primary Button
-                                </Button>
-                                <Button variant="outline" style={{
-                                    borderColor: hslToHex(editingProfile.theme.style.border),
-                                    backgroundColor: hslToHex(editingProfile.theme.style.secondary),
-                                    color: hslToHex(editingProfile.theme.style['secondary-foreground'])
-                                }}>
-                                    Secondary Button
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
                 </div>
 
                 <DialogFooter>

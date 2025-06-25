@@ -23,17 +23,24 @@ const HostStatsData = memo(({ uptimePct, medianPlayerCount, fxsMemory, nodeMemor
     const medianPlayerPart = medianPlayerCount ? Math.ceil(medianPlayerCount) : '--';
     const fxsPart = fxsMemory ? fxsMemory.toFixed(2) + 'MB' : '--';
 
+    // Fixed performance colors
+    const performanceColors = {
+        good: '#10b981',    // emerald-500
+        warning: '#f59e0b', // amber-500
+        danger: '#ef4444',  // red-500
+    };
+
     let nodeCustomStyle: React.CSSProperties = {};
     let nodePart: React.ReactNode = '--';
     if (nodeMemory) {
         const nodeMemoryUsage = Math.ceil(nodeMemory.used / nodeMemory.limit * 100);
         nodePart = nodeMemory.used.toFixed(2) + 'MB' + ' (' + nodeMemoryUsage + '%)';
         if (nodeMemoryUsage > 85) {
-            nodeCustomStyle.color = profileTheme.performanceColors.danger;
+            nodeCustomStyle.color = performanceColors.danger;
         } else if (nodeMemoryUsage > 70) {
-            nodeCustomStyle.color = profileTheme.performanceColors.warning;
+            nodeCustomStyle.color = performanceColors.warning;
         } else {
-            nodeCustomStyle.color = profileTheme.performanceColors.good;
+            nodeCustomStyle.color = performanceColors.good;
         }
     }
 

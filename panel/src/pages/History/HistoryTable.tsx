@@ -12,6 +12,11 @@ import { HistoryTableActionType, HistoryTableSearchResp, HistoryTableSearchType,
 import { useOpenActionModal } from '@/hooks/actionModal';
 import { SEARCH_ANY_STRING } from './HistorySearchBox';
 
+// Fixed performance colors
+const performanceColors = {
+    warning: '#f59e0b', // amber-500
+    danger: '#ef4444',  // red-500
+};
 
 /**
  * Action row
@@ -34,15 +39,15 @@ function HistoryRow({ action, modalOpener }: HistoryRowProps) {
         rowPrefix = <div 
             className='flex items-center px-1'
             style={{ 
-                backgroundColor: profileTheme.performanceColors.warning + '20', // 20% opacity
-                color: profileTheme.performanceColors.warning
+                backgroundColor: performanceColors.warning + '20', // 20% opacity
+                color: performanceColors.warning
             }}
         >
             <AlertTriangleIcon className='size-5' />
         </div>
         rowId = <span 
             className='tracking-wider'
-            style={{ color: profileTheme.performanceColors.warning }}
+            style={{ color: performanceColors.warning }}
         >
             {action.id}
         </span>
@@ -50,15 +55,15 @@ function HistoryRow({ action, modalOpener }: HistoryRowProps) {
         rowPrefix = <div 
             className='flex items-center px-1'
             style={{ 
-                backgroundColor: profileTheme.performanceColors.danger + '20', // 20% opacity
-                color: profileTheme.performanceColors.danger
+                backgroundColor: performanceColors.danger + '20', // 20% opacity
+                color: performanceColors.danger
             }}
         >
             <GavelIcon className='size-5' />
         </div>
         rowId = <span 
             className='tracking-wider'
-            style={{ color: profileTheme.performanceColors.danger }}
+            style={{ color: performanceColors.danger }}
         >
             {action.id}
         </span>

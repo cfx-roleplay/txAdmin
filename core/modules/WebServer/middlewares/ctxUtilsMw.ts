@@ -11,6 +11,7 @@ import { Next } from 'koa';
 import { CtxWithVars } from '../ctxTypes';
 import consts from '@shared/consts';
 import { AuthedAdminType } from '../authLogic';
+import { getProfile } from '@core/lib/profiles';
 const console = consoleFactory(modulename);
 
 //Types
@@ -26,6 +27,43 @@ export type CtxTxUtils = {
 
 //Helper functions
 const xss = xssInstancer();
+const getCurrentProfile = () => {
+    try {
+        const profileId = txConfig?.general?.profile || 'default';
+        return getProfile(profileId);
+    } catch (error) {
+        return getProfile('default');
+    }
+};
+
+const getProfileCssVariables = () => {
+    const currentProfile = getCurrentProfile();
+    
+    if (currentProfile.id === 'default') {
+        return '';
+    }
+
+    const safeBrandingKeys = [
+        'background', 'foreground', 'card', 'card-foreground',
+        'popover', 'popover-foreground', 'secondary', 'secondary-foreground',
+        'muted', 'muted-foreground', 'accent', 'accent-foreground',
+        'border', 'input', 'ring', 'radius'
+    ];
+
+    const brandingVars = [];
+    for (const [name, value] of Object.entries(currentProfile.theme.style)) {
+        if (safeBrandingKeys.includes(name)) {
+            brandingVars.push(`    --${name}: ${value};`);
+        }
+    }
+
+    return `<style>
+:root {
+${brandingVars.join('\n')}
+}
+</style>`;
+};
+
 const getRenderErrorText = (view: string, error: Error, data: any) => {
     console.error(`Error rendering ${view}.`);
     console.verbose.dir(error);
@@ -181,6 +219,7 @@ export default async function ctxUtilsMw(ctx: CtxWithVars, next: Next) {
             fxServerVersion: txEnv.fxsVersionTag,
             txAdminVersion: txEnv.txaVersion,
             hostConfigSource: txHostConfig.sourceName,
+            profileCssVariables: getProfileCssVariables(),
             jsInjection: getJavascriptConsts({
                 isWebInterface: isWebInterface,
                 csrfToken: possiblyAuthedAdmin?.csrfToken ?? 'not_set',

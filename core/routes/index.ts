@@ -49,6 +49,7 @@ export { default as fxserver_commands } from './fxserver/commands';
 export { default as fxserver_controls } from './fxserver/controls';
 export { default as fxserver_downloadLog } from './fxserver/downloadLog';
 export { default as fxserver_schedule } from './fxserver/schedule';
+export { default as fxserver_resources } from './fxserver/resources';
 
 export { default as history_stats } from './history/stats';
 export { default as history_search } from './history/search';

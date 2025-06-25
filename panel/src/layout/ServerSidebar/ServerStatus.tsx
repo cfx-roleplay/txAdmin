@@ -15,6 +15,8 @@ const statusBadgeVariants = cva(
                 destructive: "bg-destructive text-destructive-foreground",
                 warning: "bg-warning text-warning-foreground",
                 success: "bg-success text-success-foreground",
+                primary: "bg-primary text-primary-foreground",
+                accent: "bg-accent text-accent-foreground",
                 info: "bg-info text-info-foreground",
                 muted: "bg-muted text-muted-foreground",
             },
@@ -122,7 +124,7 @@ export default function ServerStatus() {
         serverHealthText = globalStatus.server.health;
         serverHealthDescInfo = globalStatus.server.healthReason;
         if (globalStatus.server.health === FxMonitorHealth.ONLINE) {
-            serverHealthColor = 'success';
+            serverHealthColor = 'accent';
             serverHealthDescTitle = 'Resources running, accepting connections.';
         } else if (globalStatus.server.health === FxMonitorHealth.PARTIAL) {
             serverHealthColor = 'warning';

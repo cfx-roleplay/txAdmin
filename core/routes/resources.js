@@ -72,7 +72,7 @@ export default async function Resources(ctx) {
         tListTimer = setInterval(() => {
             if (
                 txCore.fxResources.resourceReport
-                && (new Date() - txCore.fxResources.resourceReport.ts) <= 1000
+                && (new Date() - txCore.fxResources.resourceReport.ts) <= 5000
                 && Array.isArray(txCore.fxResources.resourceReport.resources)
             ) {
                 clearTimeout(tListTimer);
@@ -94,7 +94,7 @@ export default async function Resources(ctx) {
         tErrorTimer = setTimeout(() => {
             clearTimeout(tListTimer);
             resolve(['main/message', {message: timeoutMessage}]);
-        }, 1000);
+        }, 5000);
     });
 
     //Start race and give output

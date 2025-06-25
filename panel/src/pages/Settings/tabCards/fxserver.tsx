@@ -585,13 +585,13 @@ function BlockedEventsBox({ blockedEvents, setBlockedEvents, disabled }: Blocked
                         </div>
                     )}
                     {blockedEvents && blockedEvents.map((hash, index) => (
-                        <div key={hash} className="flex items-center space-x-1 bg-destructive/10 text-destructive px-3 py-1 rounded-md select-none">
+                        <div key={hash} className="flex items-center space-x-1 bg-accent/10 text-accent px-3 py-1 rounded-md select-none">
                             <span className="font-mono text-sm" title={`Hash: ${hash}`}>
                                 {getEventName(hash).replace(/_EVENT$/, '')}
                             </span>
                             {!disabled && <button
                                 onClick={() => removeEvent(hash)}
-                                className="ml-2 text-destructive/50 hover:text-destructive"
+                                className="ml-2 text-accent/50 hover:text-accent"
                                 aria-label="Remove"
                                 disabled={disabled}
                             >
@@ -606,7 +606,7 @@ function BlockedEventsBox({ blockedEvents, setBlockedEvents, disabled }: Blocked
                             <Button
                                 variant="secondary"
                                 size={'xs'}
-                                className="w-10 hover:bg-primary hover:text-primary-foreground"
+                                className="w-10 hover:bg-accent hover:text-accent-foreground"
                                 aria-label="Add Event"
                                 disabled={disabled}
                             >

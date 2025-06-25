@@ -9,14 +9,14 @@ const switchVariants = cva(
         variants: {
             variant: {
                 default: "",
-                checkedGreen: "data-[state=unchecked]:bg-input data-[state=checked]:bg-success",
-                checkedYellow: "data-[state=unchecked]:bg-input data-[state=checked]:bg-warning",
-                checkedRed: "data-[state=unchecked]:bg-input data-[state=checked]:bg-destructive",
-                uncheckedGreen: "data-[state=unchecked]:bg-success data-[state=checked]:bg-input",
-                uncheckedYellow: "data-[state=unchecked]:bg-warning data-[state=checked]:bg-input",
-                uncheckedRed: "data-[state=unchecked]:bg-destructive data-[state=checked]:bg-input",
-                redGreen: "data-[state=unchecked]:bg-destructive data-[state=checked]:bg-success",
-                greenRed: "data-[state=unchecked]:bg-success data-[state=checked]:bg-destructive",
+                checkedGreen: "data-[state=unchecked]:bg-input data-[state=checked]:bg-accent",
+                checkedYellow: "data-[state=unchecked]:bg-input data-[state=checked]:bg-accent",
+                checkedRed: "data-[state=unchecked]:bg-input data-[state=checked]:bg-accent",
+                uncheckedGreen: "data-[state=unchecked]:bg-accent data-[state=checked]:bg-input",
+                uncheckedYellow: "data-[state=unchecked]:bg-accent data-[state=checked]:bg-input",
+                uncheckedRed: "data-[state=unchecked]:bg-accent data-[state=checked]:bg-input",
+                redGreen: "data-[state=unchecked]:bg-accent data-[state=checked]:bg-accent",
+                greenRed: "data-[state=unchecked]:bg-accent data-[state=checked]:bg-accent",
             },
         },
         defaultVariants: {

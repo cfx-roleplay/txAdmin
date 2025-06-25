@@ -17,6 +17,7 @@ import AddLegacyBanPage from "@/pages/AddLegacyBanPage";
 import DashboardPage from "@/pages/Dashboard/DashboardPage";
 import PlayerDropsPage from "@/pages/PlayerDropsPage/PlayerDropsPage";
 import SettingsPage from "@/pages/Settings/SettingsPage";
+import ResourcesPage from "@/pages/Resources/ResourcesPage";
 import { useAdminPerms } from "@/hooks/auth";
 import UnauthorizedPage from "@/pages/UnauthorizedPage";
 
@@ -100,7 +101,7 @@ const allRoutes: RouteType[] = [
     {
         path: '/server/resources',
         title: 'Resources',
-        Page: <Iframe legacyUrl="resources" />
+        Page: <ResourcesPage />
     },
     {
         path: '/server/server-log',

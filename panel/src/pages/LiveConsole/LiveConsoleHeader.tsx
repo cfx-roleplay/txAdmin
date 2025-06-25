@@ -3,7 +3,7 @@ export default function LiveConsoleHeader() {
         <div className="flex flex-col flex-shrink px-1 sm:px-4 py-2 space-y-4 border-b">
             <div className="flex items-center space-x-2">
                 <svg
-                    className="w-4 h-4 text-green-500"
+                    className="w-4 h-4 text-accent"
                     fill="none"
                     height="24"
                     stroke="currentColor"

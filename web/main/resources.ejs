@@ -7,16 +7,157 @@
     .head-hover:hover {
         cursor: pointer;
         text-decoration: underline;
-        text-decoration-color: #d8dbe0;
+        text-decoration-color: hsl(var(--accent));
     }
     .fix-pill-form {
         min-width: 65px;
+    }
+    
+    /* Profile-based card accent using CSS variables */
+    .card-accent-profile {
+        border-top: 3px solid hsl(var(--accent));
+    }
+    
+    /* Resource status indicators using profile colors */
+    .resource-status-started {
+        color: hsl(var(--accent)) !important;
+        font-weight: 600;
+    }
+    
+    /* Override all success colors with profile accent */
+    .btn-outline-success,
+    .btn-outline-success-profile {
+        color: hsl(var(--accent)) !important;
+        border-color: hsl(var(--accent)) !important;
+    }
+    
+    .btn-outline-success:hover,
+    .btn-outline-success-profile:hover {
+        color: hsl(var(--accent-foreground)) !important;
+        background-color: hsl(var(--accent)) !important;
+        border-color: hsl(var(--accent)) !important;
+    }
+    
+    /* Override primary button colors */
+    .btn-primary {
+        background-color: hsl(var(--accent)) !important;
+        border-color: hsl(var(--accent)) !important;
+        color: hsl(var(--accent-foreground)) !important;
+    }
+    
+    .btn-primary:hover {
+        background-color: hsl(var(--accent) / 0.85) !important;
+        border-color: hsl(var(--accent) / 0.85) !important;
+        color: hsl(var(--accent-foreground)) !important;
+    }
+    
+    /* Enhanced checkbox/switch styling */
+    .c-switch-success .c-switch-input:checked ~ .c-switch-slider {
+        background-color: hsl(var(--accent)) !important;
+        border-color: hsl(var(--accent)) !important;
+    }
+    
+    .c-switch-success .c-switch-input:checked ~ .c-switch-slider::before {
+        background-color: hsl(var(--accent-foreground)) !important;
+    }
+    
+    .c-switch-success .c-switch-slider {
+        background-color: hsl(var(--accent) / 0.2) !important;
+        border-color: hsl(var(--accent) / 0.3) !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .c-switch-success .c-switch-slider:hover {
+        background-color: hsl(var(--accent) / 0.3) !important;
+    }
+    
+    /* Table hover effects with profile colors */
+    .table-hover tbody tr:hover {
+        background-color: hsl(var(--accent) / 0.05);
+    }
+    
+    /* Toggle icon accent color */
+    .toggle-icon i {
+        color: hsl(var(--accent));
+    }
+    
+    /* Enhanced table header styling */
+    .table thead th {
+        background-color: hsl(var(--accent) / 0.1);
+        border-bottom: 2px solid hsl(var(--accent) / 0.2);
+        font-weight: 600;
+    }
+    
+    /* Resource group headers */
+    .head-hover {
+        transition: all 0.2s ease;
+    }
+    
+    .head-hover:hover {
+        background-color: hsl(var(--accent) / 0.15) !important;
+    }
+    
+    /* Search input focus styling */
+    #resourceInput:focus {
+        border-color: hsl(var(--accent));
+        box-shadow: 0 0 0 0.2rem hsl(var(--accent) / 0.25);
+    }
+    
+    /* Button hover enhancements */
+    #btnExpandCollapse:hover {
+        border-color: hsl(var(--accent));
+        color: hsl(var(--accent));
+    }
+    
+    /* Additional Bootstrap button overrides with higher specificity */
+    .btn.btn-primary,
+    .btn.btn-sm.btn-primary {
+        background-color: hsl(var(--accent)) !important;
+        border-color: hsl(var(--accent)) !important;
+        color: hsl(var(--accent-foreground)) !important;
+    }
+    
+    .btn.btn-primary:hover,
+    .btn.btn-sm.btn-primary:hover,
+    .btn.btn-primary:focus,
+    .btn.btn-sm.btn-primary:focus {
+        background-color: hsl(var(--accent) / 0.85) !important;
+        border-color: hsl(var(--accent) / 0.85) !important;
+        color: hsl(var(--accent-foreground)) !important;
+    }
+    
+    /* Success button overrides with higher specificity */
+    .btn.btn-outline-success,
+    .btn.btn-sm.btn-outline-success {
+        color: hsl(var(--accent)) !important;
+        border-color: hsl(var(--accent)) !important;
+        background-color: transparent !important;
+    }
+    
+    .btn.btn-outline-success:hover,
+    .btn.btn-sm.btn-outline-success:hover,
+    .btn.btn-outline-success:focus,
+    .btn.btn-sm.btn-outline-success:focus {
+        color: hsl(var(--accent-foreground)) !important;
+        background-color: hsl(var(--accent)) !important;
+        border-color: hsl(var(--accent)) !important;
+    }
+    
+    /* Test indicator for profile variables */
+    .card-accent-profile::before {
+        content: "Profile CSS Variables Loaded";
+        position: absolute;
+        top: -20px;
+        left: 10px;
+        font-size: 10px;
+        color: hsl(var(--accent, #999));
+        opacity: 0.7;
     }
 </style>
 
 <div class="row justify-content-center">
     <div class="col-md-8 mw-col6">
-        <div class="card card-accent-info">
+        <div class="card card-accent-profile">
             <div class="card-body py-3">
                 <input
                     class="form-control my-1"
@@ -84,7 +225,11 @@
                         <% for (const resource of resGroup.resources) { %>
                             <tr id="res-<%= resource.divName %>">
                                 <td>
-                                    <strong style="word-wrap: break-word;"><%= resource.name %></strong>
+                                    <% if (resource.status === 'started') { %>
+                                        <strong style="word-wrap: break-word;" class="resource-status-started"><%= resource.name %></strong>
+                                    <% } else { %>
+                                        <strong style="word-wrap: break-word;"><%= resource.name %></strong>
+                                    <% } %>
                                     <% if (resource.version !== '') { %>
                                         <em><%= resource.version %></em>
                                     <% } %>
@@ -330,19 +475,15 @@
     function refreshResourceList() {
         if ($('#defResCheckbox').is(':checked')) {
             defaultResources.forEach(defRes => {
-                $(`#res-${defRes}`).show();
-                $(`#res-${defRes}`).removeClass("defaultRes");
-
-                $(`#res-${defRes}`).closest('div').show();
+                const element = $(`#res-${defRes}`);
+                element.show();
+                element.removeClass("defaultRes");
             })
         } else {
             defaultResources.forEach(defRes => {
                 const trElement = $(`#res-${defRes}`);
-
                 trElement.hide();
                 trElement.addClass("defaultRes");
-
-                $(`#res-${defRes}`).closest('div').hide();
             })
         }
 
@@ -351,16 +492,18 @@
             let hidden = 0;
 
             folder.resources.forEach(resource => {
-                if ($(`#res-${resource.divName}`).hasClass("defaultRes")) {
+                const resourceRow = $(`#res-${resource.divName}`);
+                
+                if (resourceRow.hasClass("defaultRes")) {
                     hidden++;
                     return
                 }
 
                 if (onlyStopped && resource.status !== 'stopped') {
-                    $(`#res-${resource.divName}`).hide()
+                    resourceRow.hide();
                     hidden++;
                 } else {
-                    $(`#res-${resource.divName}`).show()
+                    resourceRow.show();
                 }
             });
 
@@ -404,18 +547,23 @@
     }
 
     $(() => {
-        if (typeof window.localStorage.resourcesPageShowDefault === 'string') {
-            document.getElementById('defResCheckbox').checked = (window.localStorage.resourcesPageShowDefault === 'true');
-        } else {
-            window.localStorage.resourcesPageShowDefault = false;
-        }
+        // Always show default resources by default since most resources are considered "default"
+        document.getElementById('defResCheckbox').checked = true;
+        window.localStorage.resourcesPageShowDefault = 'true';
+        
         let hasFilter = false;
         if (typeof window.localStorage.resourcesPageFilter === 'string' && window.localStorage.resourcesPageFilter.length) {
             document.getElementById("resourceInput").value = window.localStorage.resourcesPageFilter;
             hasFilter = true;
         }
 
-        document.getElementById('stoppedResCheckbox').checked = window.localStorage.resourcesPageShowStopped === 'true';
+        // Initialize stopped resources checkbox
+        if (window.localStorage.resourcesPageShowStopped === 'true') {
+            document.getElementById('stoppedResCheckbox').checked = true;
+        } else {
+            document.getElementById('stoppedResCheckbox').checked = false;
+            window.localStorage.resourcesPageShowStopped = 'false';
+        }
 
         //Make the theads clickable
         resGroupsJS.forEach(folder => {

@@ -506,3 +506,103 @@ body {
     box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
         var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
+
+/* Profile-based color overrides for server log */
+/* Override green colors with profile accent colors */
+.text-success {
+    color: hsl(var(--accent)) !important;
+}
+
+/* Enhanced checkbox styling with profile accent colors - c-switch-success variants */
+.c-switch-success .c-switch-input:checked ~ .c-switch-slider {
+    background-color: hsl(var(--accent)) !important;
+    border-color: hsl(var(--accent)) !important;
+}
+
+.c-switch-success .c-switch-input:checked ~ .c-switch-slider::before {
+    background-color: hsl(var(--accent-foreground)) !important;
+}
+
+/* Style the checkbox slider background when enabled */
+.c-switch-success .c-switch-slider {
+    background-color: hsl(var(--accent) / 0.2) !important;
+    border-color: hsl(var(--accent) / 0.3) !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Style when checkbox is focused */
+.c-switch-success .c-switch-input:focus ~ .c-switch-slider {
+    box-shadow: 0 0 0 2px hsl(var(--accent) / 0.2) !important;
+}
+
+/* Hover effects */
+.c-switch-success:hover .c-switch-slider {
+    background-color: hsl(var(--accent) / 0.3) !important;
+    border-color: hsl(var(--accent) / 0.4) !important;
+}
+
+/* ALL c-switch variants to use profile accent colors (fallback for switches without -success) */
+.c-switch .c-switch-input:checked ~ .c-switch-slider {
+    background-color: hsl(var(--accent)) !important;
+    border-color: hsl(var(--accent)) !important;
+}
+
+.c-switch .c-switch-input:checked ~ .c-switch-slider::before {
+    background-color: hsl(var(--accent-foreground)) !important;
+}
+
+/* Additional CSS for any remaining switch types */
+.c-switch-pill .c-switch-input:checked ~ .c-switch-slider {
+    background-color: hsl(var(--accent)) !important;
+    border-color: hsl(var(--accent)) !important;
+}
+
+.c-switch-label .c-switch-input:checked ~ .c-switch-slider {
+    background-color: hsl(var(--accent)) !important;
+    border-color: hsl(var(--accent)) !important;
+}
+
+/* Modern Radix UI Switch components - more specific selectors */
+button[role="switch"][data-state="checked"] {
+    background-color: hsl(var(--accent)) !important;
+}
+
+/* Radix switch inside peer containers */
+.peer[role="switch"][data-state="checked"] {
+    background-color: hsl(var(--accent)) !important;
+}
+
+/* Focus ring for accessibility */
+button[role="switch"]:focus-visible {
+    --ring: var(--accent) !important;
+}
+
+/* Override any remaining primary color references with accent */
+.bg-primary {
+    background-color: hsl(var(--accent)) !important;
+}
+
+.text-primary {
+    color: hsl(var(--accent)) !important;
+}
+
+.text-primary-foreground {
+    color: hsl(var(--accent-foreground)) !important;
+}
+
+.border-primary {
+    border-color: hsl(var(--accent)) !important;
+}
+
+/* Hover states */
+.hover\\:bg-primary:hover {
+    background-color: hsl(var(--accent)) !important;
+}
+
+.hover\\:text-primary-foreground:hover {
+    color: hsl(var(--accent-foreground)) !important;
+}
+
+.hover\\:border-primary:hover {
+    border-color: hsl(var(--accent)) !important;
+}

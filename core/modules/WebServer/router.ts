@@ -76,6 +76,7 @@ export default () => {
     router.post('/fxserver/commands', apiAuthMw, routes.fxserver_commands);
     router.get('/fxserver/downloadLog', webAuthMw, routes.fxserver_downloadLog);
     router.post('/fxserver/schedule', apiAuthMw, routes.fxserver_schedule);
+    router.get('/fxserver/resources', apiAuthMw, routes.fxserver_resources);
 
     //CFG Editor
     router.post('/cfgEditor/save', apiAuthMw, routes.cfgEditor_save);

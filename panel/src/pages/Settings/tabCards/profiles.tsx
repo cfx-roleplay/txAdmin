@@ -253,10 +253,17 @@ function ProfileEditor({ profile, onSave, onCancel, isOpen }: ProfileEditorProps
         { key: 'background', label: 'Background', description: 'Main background color' },
         { key: 'foreground', label: 'Foreground', description: 'Primary text color' },
         { key: 'card', label: 'Card Background', description: 'Card and panel background' },
+        { key: 'card-foreground', label: 'Card Text', description: 'Text color on cards' },
+        { key: 'popover', label: 'Popover Background', description: 'Dropdown and modal background' },
+        { key: 'popover-foreground', label: 'Popover Text', description: 'Text in dropdowns and modals' },
         { key: 'secondary', label: 'Secondary', description: 'Secondary elements color' },
-        { key: 'accent', label: 'Accent', description: 'Accent color for highlights' },
-        { key: 'border', label: 'Border', description: 'Border and divider color' },
+        { key: 'secondary-foreground', label: 'Secondary Text', description: 'Text on secondary elements' },
         { key: 'muted', label: 'Muted Background', description: 'Muted areas background' },
+        { key: 'muted-foreground', label: 'Muted Text', description: 'Subtle text color' },
+        { key: 'accent', label: 'Accent', description: 'Primary accent color for highlights' },
+        { key: 'accent-foreground', label: 'Accent Text', description: 'Text on accent elements' },
+        { key: 'border', label: 'Border', description: 'Border and divider color' },
+        { key: 'input', label: 'Input Background', description: 'Form input background' },
         { key: 'ring', label: 'Focus Ring', description: 'Focus indicator color' },
     ] as const;
 
@@ -328,18 +335,144 @@ function ProfileEditor({ profile, onSave, onCancel, isOpen }: ProfileEditorProps
 
                         {/* Color Customization */}
                         <div className="space-y-4">
-                            <div>
-                                <h4 className="font-medium mb-3">Color Scheme</h4>
-                                <div className="grid gap-3">
-                                    {styleFields.map(({ key, label, description }) => (
-                                        <ColorPicker
-                                            key={key}
-                                            label={label}
-                                            value={hslToHex(editingProfile.theme.style[key])}
-                                            onChange={(color) => updateThemeStyle(key, color)}
-                                            className="text-sm"
-                                        />
-                                    ))}
+                            <div className="flex items-center justify-between">
+                                <Label className="text-base font-medium">Color Scheme</Label>
+                                <div className="flex gap-2">
+                                    <Button 
+                                        type="button"
+                                        variant="outline" 
+                                        size="sm"
+                                        onClick={() => {
+                                            // Reset to default colors
+                                            setEditingProfile(prev => ({
+                                                ...prev,
+                                                theme: {
+                                                    ...prev.theme,
+                                                    style: { ...defaultStyle }
+                                                }
+                                            }));
+                                        }}
+                                    >
+                                        Reset to Default
+                                    </Button>
+                                    <Button 
+                                        type="button"
+                                        variant="outline" 
+                                        size="sm"
+                                        onClick={() => {
+                                            // Copy RyleGames colors
+                                            const rylegamesProfile = initialProfiles.find(p => p.id === 'rylegames');
+                                            if (rylegamesProfile) {
+                                                setEditingProfile(prev => ({
+                                                    ...prev,
+                                                    theme: {
+                                                        ...prev.theme,
+                                                        style: { ...rylegamesProfile.theme.style }
+                                                    }
+                                                }));
+                                            }
+                                        }}
+                                    >
+                                        Copy RyleGames
+                                    </Button>
+                                    <Button 
+                                        type="button"
+                                        variant="outline" 
+                                        size="sm"
+                                        onClick={() => {
+                                            // Copy Zerod colors
+                                            const zerodProfile = initialProfiles.find(p => p.id === 'zerod');
+                                            if (zerodProfile) {
+                                                setEditingProfile(prev => ({
+                                                    ...prev,
+                                                    theme: {
+                                                        ...prev.theme,
+                                                        style: { ...zerodProfile.theme.style }
+                                                    }
+                                                }));
+                                            }
+                                        }}
+                                    >
+                                        Copy Zerod
+                                    </Button>
+                                </div>
+                            </div>
+                            
+                            {/* Color fields organized by groups */}
+                            <div className="space-y-6">
+                                {/* Background Colors */}
+                                <div className="space-y-3">
+                                    <h4 className="text-sm font-medium text-muted-foreground">Background & Surface Colors</h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {styleFields.filter(field => 
+                                            ['background', 'card', 'popover', 'secondary', 'muted', 'input'].includes(field.key)
+                                        ).map((field) => (
+                                            <div key={field.key} className="space-y-2">
+                                                <Label htmlFor={field.key} className="text-sm">
+                                                    {field.label}
+                                                </Label>
+                                                <div className="flex gap-2">
+                                                    <ColorPicker
+                                                        value={hslToHex(editingProfile.theme.style[field.key as keyof ProfileTheme['style']])}
+                                                        onChange={(value) => updateThemeStyle(field.key as keyof ProfileTheme['style'], value)}
+                                                    />
+                                                    <div className="flex-1">
+                                                        <p className="text-xs text-muted-foreground">{field.description}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Text Colors */}
+                                <div className="space-y-3">
+                                    <h4 className="text-sm font-medium text-muted-foreground">Text & Foreground Colors</h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {styleFields.filter(field => 
+                                            ['foreground', 'card-foreground', 'popover-foreground', 'secondary-foreground', 'muted-foreground', 'accent-foreground'].includes(field.key)
+                                        ).map((field) => (
+                                            <div key={field.key} className="space-y-2">
+                                                <Label htmlFor={field.key} className="text-sm">
+                                                    {field.label}
+                                                </Label>
+                                                <div className="flex gap-2">
+                                                    <ColorPicker
+                                                        value={hslToHex(editingProfile.theme.style[field.key as keyof ProfileTheme['style']])}
+                                                        onChange={(value) => updateThemeStyle(field.key as keyof ProfileTheme['style'], value)}
+                                                    />
+                                                    <div className="flex-1">
+                                                        <p className="text-xs text-muted-foreground">{field.description}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Accent & Interactive Colors */}
+                                <div className="space-y-3">
+                                    <h4 className="text-sm font-medium text-muted-foreground">Accent & Interactive Colors</h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {styleFields.filter(field => 
+                                            ['accent', 'border', 'ring'].includes(field.key)
+                                        ).map((field) => (
+                                            <div key={field.key} className="space-y-2">
+                                                <Label htmlFor={field.key} className="text-sm">
+                                                    {field.label}
+                                                </Label>
+                                                <div className="flex gap-2">
+                                                    <ColorPicker
+                                                        value={hslToHex(editingProfile.theme.style[field.key as keyof ProfileTheme['style']])}
+                                                        onChange={(value) => updateThemeStyle(field.key as keyof ProfileTheme['style'], value)}
+                                                    />
+                                                    <div className="flex-1">
+                                                        <p className="text-xs text-muted-foreground">{field.description}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -407,8 +540,95 @@ export default function ConfigCardProfiles(props: SettingsCardProps) {
     });
     const [editingProfile, setEditingProfile] = useState<ProfileDefinition | undefined>();
     const [isEditorOpen, setIsEditorOpen] = useState(false);
+    const [currentProfileId, setCurrentProfileId] = useState<string>(() => {
+        return localStorage.getItem('txAdmin-currentProfile') || 'rylegames';
+    });
     const { theme, setTheme } = useTheme();
     const profileTheme = useProfileTheme();
+
+    // Apply profile theme using CSS variables
+    const applyProfileTheme = (profile: ProfileDefinition) => {
+        const root = document.documentElement;
+        const style = profile.theme.style;
+        
+        // Apply CSS variables
+        root.style.setProperty('--background', style.background);
+        root.style.setProperty('--foreground', style.foreground);
+        root.style.setProperty('--card', style.card);
+        root.style.setProperty('--card-foreground', style['card-foreground']);
+        root.style.setProperty('--popover', style.popover);
+        root.style.setProperty('--popover-foreground', style['popover-foreground']);
+        root.style.setProperty('--secondary', style.secondary);
+        root.style.setProperty('--secondary-foreground', style['secondary-foreground']);
+        root.style.setProperty('--muted', style.muted);
+        root.style.setProperty('--muted-foreground', style['muted-foreground']);
+        root.style.setProperty('--accent', style.accent);
+        root.style.setProperty('--accent-foreground', style['accent-foreground']);
+        root.style.setProperty('--border', style.border);
+        root.style.setProperty('--input', style.input);
+        root.style.setProperty('--ring', style.ring);
+        root.style.setProperty('--radius', style.radius);
+        
+        // Set the theme mode (dark/light)
+        if (profile.theme.isDark) {
+            root.classList.remove('light');
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+            root.classList.add('light');
+        }
+        
+        // Store the current profile in localStorage for persistence
+        localStorage.setItem('txAdmin-currentProfile', profile.id);
+        setCurrentProfileId(profile.id);
+        
+        // Update the theme state
+        setTheme(profile.id);
+        
+        txToast.success(`Applied ${profile.name} profile successfully!`);
+    };
+
+    // Load saved profile on mount and apply its theme
+    useEffect(() => {
+        const savedProfileId = localStorage.getItem('txAdmin-currentProfile');
+        const profileToApply = savedProfileId ? profiles.find(p => p.id === savedProfileId) : profiles.find(p => p.id === 'rylegames');
+        
+        if (profileToApply) {
+            // Apply the theme without showing the toast message
+            const root = document.documentElement;
+            const style = profileToApply.theme.style;
+            
+            // Apply CSS variables
+            root.style.setProperty('--background', style.background);
+            root.style.setProperty('--foreground', style.foreground);
+            root.style.setProperty('--card', style.card);
+            root.style.setProperty('--card-foreground', style['card-foreground']);
+            root.style.setProperty('--popover', style.popover);
+            root.style.setProperty('--popover-foreground', style['popover-foreground']);
+            root.style.setProperty('--secondary', style.secondary);
+            root.style.setProperty('--secondary-foreground', style['secondary-foreground']);
+            root.style.setProperty('--muted', style.muted);
+            root.style.setProperty('--muted-foreground', style['muted-foreground']);
+            root.style.setProperty('--accent', style.accent);
+            root.style.setProperty('--accent-foreground', style['accent-foreground']);
+            root.style.setProperty('--border', style.border);
+            root.style.setProperty('--input', style.input);
+            root.style.setProperty('--ring', style.ring);
+            root.style.setProperty('--radius', style.radius);
+            
+            // Set the theme mode (dark/light)
+            if (profileToApply.theme.isDark) {
+                root.classList.remove('light');
+                root.classList.add('dark');
+            } else {
+                root.classList.remove('dark');
+                root.classList.add('light');
+            }
+            
+            setCurrentProfileId(profileToApply.id);
+            localStorage.setItem('txAdmin-currentProfile', profileToApply.id);
+        }
+    }, [profiles]);
 
     // Save custom profiles to localStorage
     const saveCustomProfiles = (allProfiles: ProfileDefinition[]) => {
@@ -437,8 +657,12 @@ export default function ConfigCardProfiles(props: SettingsCardProps) {
         setProfiles(newProfiles);
         saveCustomProfiles(newProfiles);
         
-        if (theme === profileId) {
-            setTheme('rylegames'); // Fallback to default
+        // If the deleted profile is currently active, switch to RyleGames
+        if (currentProfileId === profileId) {
+            const rylegamesProfile = profiles.find(p => p.id === 'rylegames');
+            if (rylegamesProfile) {
+                applyProfileTheme(rylegamesProfile);
+            }
         }
         txToast.success('Profile deleted successfully');
     };
@@ -496,7 +720,7 @@ export default function ConfigCardProfiles(props: SettingsCardProps) {
                 <div>
                     <h3 className="text-lg font-medium">Profile Management</h3>
                     <p className="text-sm text-muted-foreground">
-                        Create and customize visual themes for your txAdmin interface
+                        Create and customize visual themes for your txAdmin interface. Profiles are applied instantly and stored locally in your browser.
                     </p>
                 </div>
                 <div className="flex gap-2">
@@ -528,10 +752,10 @@ export default function ConfigCardProfiles(props: SettingsCardProps) {
                             />
                             <div>
                                 <p className="font-medium">
-                                    {profiles.find(p => p.id === theme)?.name || 'Unknown Profile'}
+                                    {profiles.find(p => p.id === currentProfileId)?.name || 'Unknown Profile'}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
-                                    {profiles.find(p => p.id === theme)?.description || 'No description'}
+                                    {profiles.find(p => p.id === currentProfileId)?.description || 'No description'}
                                 </p>
                             </div>
                         </div>
@@ -545,8 +769,8 @@ export default function ConfigCardProfiles(props: SettingsCardProps) {
             {/* Profile List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {profiles.map((profile) => (
-                    <Card key={profile.id} className={theme === profile.id ? 'ring-2' : ''} style={
-                        theme === profile.id ? { borderColor: profileTheme.accent } : {}
+                    <Card key={profile.id} className={currentProfileId === profile.id ? 'ring-2' : ''} style={
+                        currentProfileId === profile.id ? { borderColor: profileTheme.accent } : {}
                     }>
                         <CardHeader className="pb-3">
                             <div className="flex items-center justify-between">
@@ -580,12 +804,12 @@ export default function ConfigCardProfiles(props: SettingsCardProps) {
                             </div>
 
                             <div className="flex gap-2">
-                                {theme !== profile.id && (
+                                {currentProfileId !== profile.id && (
                                     <Button
                                         size="sm"
                                         variant="outline"
                                         className="flex-1"
-                                        onClick={() => setTheme(profile.id)}
+                                        onClick={() => applyProfileTheme(profile)}
                                     >
                                         Apply
                                     </Button>

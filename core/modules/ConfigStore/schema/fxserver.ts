@@ -7,10 +7,17 @@ import { isValidFiveMBuild } from "@core/lib/gameBuilds";
 const enforceGameBuild = typeNullableConfig({
     name: 'Enforce Game Build',
     default: null,
-    validator: z.string().min(1).refine(async (build) => {
-        return await isValidFiveMBuild(build);
+    validator: z.string().min(1).refine((build) => {
+        // Handle numeric builds - check if it's a valid positive integer string
+        const trimmedBuild = build.trim();
+        if (/^\d+$/.test(trimmedBuild)) {
+            const buildNumber = parseInt(trimmedBuild, 10);
+            return buildNumber > 0 && buildNumber <= 50000;
+        }
+        
+        return false;
     }, {
-        message: "Invalid game build. Build must exist in FiveM supported builds.",
+        message: "Invalid game build. Build must be a positive number (e.g., 1, 2545, 3570).",
     }).nullable(),
     fixer: SYM_FIXER_DEFAULT,
 });
@@ -72,20 +79,8 @@ const experimentalNetGameEventHandler = typeNullableConfig({
 });
 
 const PoolSizeConfigSchema = z.object({
-    poolName: z.string().min(1).refine(async (poolName) => {
-        return await isValidPoolName(poolName);
-    }, {
-        message: "Invalid pool name. Pool must exist in FiveM's pool size limits.",
-    }),
+    poolName: z.string().min(1),
     increase: z.number().int().positive(), // Note: "increase" but now represents total pool size
-}).refine(async (data) => {
-    const maxLimit = await getPoolMaxLimit(data.poolName);
-    if (maxLimit === null) return true; // Pool doesn't exist, will be caught by poolName validation
-    
-    return data.increase <= maxLimit;
-}, {
-    message: "The pool size exceeds the maximum allowed limit from CFX.re.",
-    path: ['increase'], // Point the error to the increase field
 });
 
 const poolSizes = typeDefinedConfig({

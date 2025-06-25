@@ -181,11 +181,62 @@ const NATIVE_CONVARS = new Set([
     'locale',
 ]);
 
+// Convars that can ONLY be set at startup and must use +set
+const STARTUP_ONLY_CONVARS = new Set([
+    // Game build and compatibility
+    'sv_enforceGameBuild',
+    'sv_replaceExeToSwitchBuilds',
+    'sv_pureLevel',
+    
+    // Networking and security features
+    'sv_enableNetworkedSounds',
+    'sv_enableNetworkedPhoneExplosions',
+    'sv_enableNetworkedScriptEntityStates',
+    
+    // Experimental features
+    'sv_experimentalStateBagsHandler',
+    'sv_experimentalOnesyncPopulation',
+    'sv_experimentalNetGameEventHandler',
+    
+    // Pool configuration
+    'increase_pool_size',
+    
+    // Net game event blocking
+    'block_net_game_event',
+    
+    // OneSync settings
+    'onesync_logFile',
+    'onesync_automaticResend',
+    'sv_useAccurateSends',
+    
+    // Server configuration
+    'sv_endpointPrivacy',
+    'sv_httpFileServerProxyOnly',
+    'sv_stateBagStrictMode',
+    'sv_protectServerEntities',
+    
+    // API keys and tokens (these should be set at startup for security)
+    'steam_webApiKey',
+    'steam_webApiDomain',
+    'sv_tebexSecret',
+    'sv_playersToken',
+    'sv_profileDataToken',
+    
+    // Listing configuration
+    'sv_listingIpOverride',
+    'sv_listingHostOverride',
+    'sv_endpoints',
+]);
+
 const polishConvarSetTuple = ([setter, name, value]: RawConvarSetTuple, isCmdLine = false): ConvarSetTuple => {
     const convarName = NATIVE_CONVARS.has(name) ? name : 'txAdmin-' + name;
     
+    // Force +set for startup-only convars
+    const isStartupOnly = STARTUP_ONLY_CONVARS.has(name);
+    const finalSetter = (isCmdLine || isStartupOnly) ? `+${setter}` : setter;
+    
     return [
-        isCmdLine ? `+${setter}` : setter,
+        finalSetter,
         convarName,
         value.toString(),
     ];

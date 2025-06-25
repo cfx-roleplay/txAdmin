@@ -1035,7 +1035,9 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                                     </div>
                                 </SelectItem>
                             ))}
-                            <SelectItem value="latest-fivem">Latest FiveM ({gameBuilds.fivem[gameBuilds.fivem.length - 1]?.build})</SelectItem>
+                            <SelectItem value={gameBuilds.fivem[gameBuilds.fivem.length - 1]?.build}>
+                                Latest FiveM ({gameBuilds.fivem[gameBuilds.fivem.length - 1]?.build})
+                            </SelectItem>
                         </SelectContent>
                     </Select>
                 ) : (
@@ -1049,7 +1051,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                     />
                 )}
                 <SettingItemDesc>
-                    Selects a game build for clients to use. This can only be specified at startup, and cannot be changed at runtime. <br />
+                    Selects a game build for clients to use. <br />
                     {gameBuilds ? (
                         <>
                             <strong>Latest FiveM:</strong> {gameBuilds.fivem[gameBuilds.fivem.length - 1]?.build} ({gameBuilds.fivem.find(b => b.build === gameBuilds.fivem[gameBuilds.fivem.length - 1]?.build)?.dlcName || 'Latest update'}). <br />
@@ -1074,6 +1076,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Determines how the client will run older game builds. <br />
+                    
                     <strong>True:</strong> Default for builds below 12872. Client downloads all files for the specific game build and runs old executable. <br />
                     <strong>False:</strong> Default for builds above 12871. Client runs latest stable game build executable but only loads specific DLCs.
                 </SettingItemDesc>
@@ -1095,6 +1098,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 </Select>
                 <SettingItemDesc>
                     Prevents users from using modified client files. <br />
+                    
                     <strong>Level 1:</strong> Blocks all modified client files except audio files and known graphics mods. <br />
                     <strong>Level 2:</strong> Blocks all modified client files.
                 </SettingItemDesc>
@@ -1110,6 +1114,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Allow users to route NETWORK_PLAY_SOUND_EVENT through the server. <br />
+                    
                     <strong>Default:</strong> Enabled. <strong>Warning:</strong> Can be used by malicious actors.
                 </SettingItemDesc>
             </SettingItem>
@@ -1124,6 +1129,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Allow users to route REQUEST_PHONE_EXPLOSION_EVENT through the server. <br />
+                    
                     <strong>Default:</strong> Disabled. <strong>Warning:</strong> Can be used by malicious actors.
                 </SettingItemDesc>
             </SettingItem>
@@ -1166,6 +1172,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Fixes an oversight that incorrectly limited entity IDs to 8192 instead of 65535 when OneSync is on but population is false. <br />
+                    
                     <strong>Default:</strong> Enabled. <strong>Note:</strong> Also enables Experimental State Bags Handler.
                 </SettingItemDesc>
             </SettingItem>
@@ -1180,6 +1187,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Uses the new serialization API to improve GTA game events, adds entity relevance checks, and improves backwards compatibility. <br />
+                    
                     <strong>Default:</strong> Disabled. <strong>Note:</strong> Also enables Experimental State Bags Handler and OneSync Population.
                 </SettingItemDesc>
             </SettingItem>
@@ -1193,7 +1201,6 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 <SettingItemDesc>
                     Set the size of specific game pools. Examples: <InlineCode>TxdStore 50000</InlineCode>, <InlineCode>CMoveObject 600</InlineCode>. <br />
                     <strong>Common pools:</strong> TxdStore (50000 max), AnimStore (20480 max), CMoveObject (600 max), FragmentStore (14000 max). <br />
-                    Values represent the total pool size and cannot exceed CFX.re maximum limits. This can only be specified at startup and cannot be changed at runtime.
                 </SettingItemDesc>
             </SettingItem>
 
@@ -1205,6 +1212,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Block specific net game events to prevent exploits and unauthorized actions. <br />
+                    
                     <strong>Examples:</strong> Block weapon damage events, explosion events, or script verification events. <br />
                     <strong className="text-warning-inline">⚠️ Warning:</strong> Blocking events can break legitimate game functionality. Only block events you understand.
                 </SettingItemDesc>
@@ -1220,7 +1228,8 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                     disabled={pageCtx.isReadOnly}
                 />
                 <SettingItemDesc>
-                    If enabled, hides player IP addresses from public reports output by the server.
+                    If enabled, hides player IP addresses from public reports output by the server. <br />
+                    
                 </SettingItemDesc>
             </SettingItem>
             
@@ -1235,6 +1244,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Restricts file server access to only IP addresses within ranges specified by sv_proxyIPRanges. <br />
+                    
                     <strong>Default:</strong> Disabled. Useful when using custom proxy servers with fileserver_add.
                 </SettingItemDesc>
             </SettingItem>
@@ -1250,6 +1260,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Enable strict mode for state bag operations. <br />
+                    
                     <strong>Default:</strong> Disabled.
                 </SettingItemDesc>
             </SettingItem>
@@ -1265,6 +1276,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Protect server-created entities from client deletion. <br />
+                    
                     <strong>Default:</strong> Disabled.
                 </SettingItemDesc>
             </SettingItem>
@@ -1280,6 +1292,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Steam Web API key for player verification. <br />
+                    
                     <strong className="text-warning-inline">⚠️ KEEP SECURE:</strong> This key should be kept confidential.
                 </SettingItemDesc>
             </SettingItem>
@@ -1294,6 +1307,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Steam API domain for requests. Change this for proxy or firewall configurations. <br />
+                    
                     <strong>Default:</strong> api.steampowered.com
                 </SettingItemDesc>
             </SettingItem>
@@ -1309,6 +1323,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Tebex store integration secret key. <br />
+                    
                     <strong className="text-warning-inline">⚠️ KEEP SECURE:</strong> This key should be kept confidential.
                 </SettingItemDesc>
             </SettingItem>
@@ -1324,6 +1339,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Authentication token for player endpoint access. <br />
+                    
                     <strong className="text-warning-inline">⚠️ KEEP SECURE:</strong> This token should be kept confidential.
                 </SettingItemDesc>
             </SettingItem>
@@ -1339,6 +1355,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Authentication token for profile data access. <br />
+                    
                     <strong className="text-warning-inline">⚠️ KEEP SECURE:</strong> This token should be kept confidential.
                 </SettingItemDesc>
             </SettingItem>
@@ -1352,7 +1369,8 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                     disabled={pageCtx.isReadOnly}
                 />
                 <SettingItemDesc>
-                    Override IP address used in server listing. Leave empty to use auto-detected IP.
+                    Override IP address used in server listing. Leave empty to use auto-detected IP. <br />
+                    
                 </SettingItemDesc>
             </SettingItem>
             
@@ -1365,7 +1383,8 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                     disabled={pageCtx.isReadOnly}
                 />
                 <SettingItemDesc>
-                    Override hostname used in server listing. Leave empty to use auto-detected hostname.
+                    Override hostname used in server listing. Leave empty to use auto-detected hostname. <br />
+                    
                 </SettingItemDesc>
             </SettingItem>
             
@@ -1378,7 +1397,8 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                     disabled={pageCtx.isReadOnly}
                 />
                 <SettingItemDesc>
-                    Custom endpoint configuration for advanced networking setups.
+                    Custom endpoint configuration for advanced networking setups. <br />
+                    
                 </SettingItemDesc>
             </SettingItem>
             
@@ -1391,7 +1411,8 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                     disabled={pageCtx.isReadOnly}
                 />
                 <SettingItemDesc>
-                    Path to OneSync debug log file. Leave empty to disable OneSync logging.
+                    Path to OneSync debug log file. Leave empty to disable OneSync logging. <br />
+                    
                 </SettingItemDesc>
             </SettingItem>
             
@@ -1406,6 +1427,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Automatically resend failed OneSync packets. <br />
+                    
                     <strong>Default:</strong> Disabled.
                 </SettingItemDesc>
             </SettingItem>
@@ -1421,6 +1443,7 @@ export default function ConfigCardFxserver({ cardCtx, pageCtx }: SettingsCardPro
                 />
                 <SettingItemDesc>
                     Use more accurate network packet sending methods. <br />
+                    
                     <strong>Default:</strong> Enabled.
                 </SettingItemDesc>
             </SettingItem>
